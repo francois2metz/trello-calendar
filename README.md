@@ -1,6 +1,6 @@
 # Trello calendar
 
-A calendar with cards assigned to you.
+A calendar with all cards shown by due date.
 
 ## Install
 
