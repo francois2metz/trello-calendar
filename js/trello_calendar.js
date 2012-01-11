@@ -15,7 +15,8 @@ $(document).ready(function() {
                             id: card.id,
                             title: card.name,
                             start: card.badges.due,
-                            color: _(card.idMembers).include(me.id) ? 'red' : 'green'
+                            color: _(card.idMembers).include(me.id) ? 'red' : 'green',
+                            url: card.url
                         }, true);
                     });
                 });
