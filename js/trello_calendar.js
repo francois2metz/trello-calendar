@@ -1,6 +1,5 @@
 $(document).ready(function() {
     Trello.authorize({
-        type: "popup",
         success: onAuthorize
     });
 
