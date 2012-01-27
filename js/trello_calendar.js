@@ -1,7 +1,12 @@
 $(document).ready(function() {
     Trello.authorize({
+        interactive: false,
         success: onAuthorize
     });
+
+    if (!Trello.authorized()) {
+        return Trello.authorize({ success: onAuthorize });
+    }
 
     var calendar = $('#calendar').fullCalendar({
         height: $(document).height() - 50
@@ -34,7 +39,7 @@ $(document).ready(function() {
     }
 
     function onAuthorize() {
-        if (!Trello.authorized()) return Trello.authorize();
+        if (!Trello.authorized()) return Trello.authorize({ success: onAuthorize });
 
         Trello.members.get('me').done(showMe);
     }
