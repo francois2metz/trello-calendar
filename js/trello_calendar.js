@@ -3,7 +3,12 @@ $(document).ready(function() {
         success: onAuthorize
     });
 
-    var calendar = $('#calendar').fullCalendar({});
+    var calendar = $('#calendar').fullCalendar({
+        height: $(document).height() - 50
+    });
+    $(window).resize(function() {
+        calendar.fullCalendar('option', 'height', $(document).height() - 50);
+    });
 
     function listBoards(me) {
         return function(boards) {
