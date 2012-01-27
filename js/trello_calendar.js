@@ -1,3 +1,29 @@
+var App = {
+    model: {},
+    view: {}
+};
+
+/**
+ * Card model
+ */
+App.model.Card = Backbone.Model.extend({});
+
+/**
+ * Render a card on fullcalendar
+ */
+App.view.Card = Backbone.View.extend({
+    render: function() {
+        $(this.el).fullCalendar('renderEvent', {
+            id: this.model.id,
+            title: this.model.get('name'),
+            start: this.model.get('badges').due,
+            color: _(this.model.get('idMembers')).include(this.options.me.id) ? 'red' : 'green',
+            url: this.model.get('url')
+        }, true);
+        return true;
+    }
+});
+
 $(document).ready(function() {
     Trello.authorize({
         interactive: false,
@@ -21,13 +47,10 @@ $(document).ready(function() {
                 Trello.get('/boards/'+ board.id +'/cards/all', {badges: true}).done(function(cards) {
                     _(cards).each(function(card) {
                         if (!card.badges.due) return;
-                        calendar.fullCalendar('renderEvent', {
-                            id: card.id,
-                            title: card.name,
-                            start: card.badges.due,
-                            color: _(card.idMembers).include(me.id) ? 'red' : 'green',
-                            url: card.url
-                        }, true);
+                        var model = new App.model.Card(card);
+                        new App.view.Card({model: model,
+                                           me: me,
+                                           el: calendar.get(0)}).render();
                     });
                 });
             });
