@@ -89,7 +89,6 @@ $(document).ready(function() {
             cards.chain().filter(function(card) {
                 return card.get('idBoard') == board.id;
             }).each(function(card) {
-                console.log(card);
                 card.set({hidden: hidden});
             });
         });
