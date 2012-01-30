@@ -38,6 +38,7 @@ App.view.Card = Backbone.View.extend({
         } else {
             $(this.el).fullCalendar('renderEvent', {
                 id: this.model.id,
+                allDay: false,
                 title: this.model.get('name'),
                 start: this.model.get('badges').due,
                 color: _(this.model.get('idMembers')).include(this.options.me.id) ? 'red' : 'green',
