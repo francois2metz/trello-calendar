@@ -44,7 +44,31 @@ App.view.Card = Backbone.View.extend({
                 url: this.model.get('url')
             }, true);
         }
-        return true;
+        return this;
+    }
+});
+
+App.view.Board = Backbone.View.extend({
+    events: {
+        "click input": "click"
+    },
+
+    tagName: 'label',
+
+    click: function(e) {
+        var hidden = true;
+        if ($(e.target).is(':checked')) {
+            hidden = false
+        }
+        this.model.set({hidden: hidden});
+    },
+
+    render: function() {
+        var input = this.make('input', {type: 'checkbox',
+                                        value: this.model.id,
+                                        checked: true});
+        $(this.el).text(this.model.get('name')).append(input);
+        return this;
     }
 });
 
@@ -76,20 +100,13 @@ $(document).ready(function() {
     }
 
     function renderBoard(board) {
-        var $input = $('<input>').attr({type: 'checkbox',
-                                        value: board.get('id'),
-                                        checked: true});
-        var $label = $('<label>').text(board.get('name')).append($input);
-        $('#boards').append($label);
-        $input.bind('click', function(e) {
-            var hidden = true;
-            if ($(this).is(':checked')) {
-                hidden = false
-            }
+        var view = new App.view.Board({model: board}).render();
+        $(view.el).appendTo($('#boards'));
+        board.bind('change:hidden', function() {
             cards.chain().filter(function(card) {
                 return card.get('idBoard') == board.id;
             }).each(function(card) {
-                card.set({hidden: hidden});
+                card.set({hidden: board.get('hidden')});
             });
         });
     }
