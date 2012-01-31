@@ -7,7 +7,15 @@ var App = {
 /**
  * Card model
  */
-App.model.Card = Backbone.Model.extend({});
+App.model.Card = Backbone.Model.extend({
+    sync: function(method, model, options) {
+        if (method == 'update') {
+            // only support update due date
+            Trello.put('/cards/'+ model.id, {due: model.get('badges').due}, options.success, options.error);
+        }
+
+    }
+});
 
 /**
  * Cards collection
@@ -36,6 +44,7 @@ App.view.Card = Backbone.View.extend({
         if (this.model.get('hidden')) {
             $(this.el).fullCalendar('removeEvents', this.model.id);
         } else {
+            $(this.el).fullCalendar('removeEvents', this.model.id);
             $(this.el).fullCalendar('renderEvent', {
                 id: this.model.id,
                 allDay: false,
@@ -74,14 +83,23 @@ App.view.Board = Backbone.View.extend({
 });
 
 $(document).ready(function() {
-    Trello.authorize({
-        interactive: false,
+    var defaultOptions = {
+        scope: {
+            write: true
+        },
         success: onAuthorize
-    });
+    }
+    Trello.authorize(_.extend({}, defaultOptions, {
+        interactive: false
+    }));
 
     if (!Trello.authorized()) {
-        return Trello.authorize({ success: onAuthorize });
+        return Trello.authorize(defaultOptions);
     }
+
+    var currentUser;
+    var boards = new App.collection.Boards();
+    var cards = new App.collection.Cards();
 
     var calendar = $('#calendar').fullCalendar({
         header: {
@@ -89,15 +107,20 @@ $(document).ready(function() {
 	    center: 'title',
 	    right: 'month,agendaWeek,agendaDay'
 	},
-        height: $(document).height() - 50
+        height: $(document).height() - 50,
+        editable: true,
+        disableResizing: true,
+        eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
+            var card = cards.get(event.id);
+            var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ss");
+            var badges = _.extend({}, card.get('badges'), {due: date});
+            card.set({badges: badges});
+            card.save();
+        }
     });
     $(window).resize(function() {
         calendar.fullCalendar('option', 'height', $(document).height() - 50);
     });
-
-    var currentUser;
-    var boards = new App.collection.Boards();
-    var cards = new App.collection.Cards();
 
     function renderCard(card) {
         new App.view.Card({model: card,
@@ -140,7 +163,7 @@ $(document).ready(function() {
     }
 
     function onAuthorize() {
-        if (!Trello.authorized()) return Trello.authorize({ success: onAuthorize });
+        if (!Trello.authorized()) return Trello.authorize(defaultOptions);
 
         Trello.members.get('me').done(showMe);
     }
