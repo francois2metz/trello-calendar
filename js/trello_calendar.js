@@ -110,9 +110,10 @@ $(document).ready(function() {
         height: $(document).height() - 50,
         editable: true,
         disableResizing: true,
+        ignoreTimezone: false,
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
             var card = cards.get(event.id);
-            var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ss");
+            var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ssZ");
             var badges = _.extend({}, card.get('badges'), {due: date});
             card.set({badges: badges});
             card.save();
