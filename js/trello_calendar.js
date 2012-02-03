@@ -71,13 +71,17 @@ App.view.Board = Backbone.View.extend({
             hidden = false
         }
         this.model.set({hidden: hidden});
+        $(this.el).toggleClass('checked');
     },
 
     render: function() {
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
                                         checked: true});
-        $(this.el).text(this.model.get('name')).append(input);
+        $(this.el).toggleClass('checked')
+                  .attr('title', 'Show cards from the board '+  this.model.get('name'))
+                  .text(this.model.get('name'))
+                  .append(input);
         return this;
     }
 });

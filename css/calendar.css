@@ -1,0 +1,21 @@
+#boards
+{
+  margin: 0 0 5px;
+  color: white;
+}
+#boards label
+{
+  border-radius: 4px;
+  margin: 5px;
+  padding: 3px;
+  background-color: gray;
+  cursor: pointer;
+}
+#boards label.checked
+{
+  background-color: #990000;
+}
+#boards input
+{
+  display: none;
+}
