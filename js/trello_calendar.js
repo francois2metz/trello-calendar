@@ -115,6 +115,7 @@ $(document).ready(function() {
         editable: true,
         disableResizing: true,
         ignoreTimezone: false,
+        timeFormat: "H'h'(mm)",
         eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
             var card = cards.get(event.id);
             var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ssZ");
