@@ -9,8 +9,11 @@
   border-radius: 4px;
   margin: 2px;
   padding: 3px;
-  background-color: gray;
   cursor: pointer;
+}
+#boards label:not(.checked)
+{
+  background-color: gray !important;
 }
 #boards label.checked
 {

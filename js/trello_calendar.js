@@ -45,12 +45,13 @@ App.view.Card = Backbone.View.extend({
             $(this.el).fullCalendar('removeEvents', this.model.id);
         } else {
             $(this.el).fullCalendar('removeEvents', this.model.id);
+            var color = "#"+this.model.get('idBoard').substr(0, 6);
             $(this.el).fullCalendar('renderEvent', {
                 id: this.model.id,
                 allDay: false,
                 title: this.model.get('name'),
                 start: this.model.get('badges').due,
-                color: _(this.model.get('idMembers')).include(this.options.me.id) ? 'red' : 'green',
+                color: _(this.model.get('idMembers')).include(this.options.me.id) ? 'red' : color,
                 url: this.model.get('url')
             }, true);
         }
@@ -78,7 +79,9 @@ App.view.Board = Backbone.View.extend({
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
                                         checked: true});
+        var color = "#"+this.model.id.substr(0, 6);
         $(this.el).toggleClass('checked')
+                  .css({'background-color': color})
                   .attr('title', 'Show cards from the board '+  this.model.get('name'))
                   .text(this.model.get('name'))
                   .append(input);
