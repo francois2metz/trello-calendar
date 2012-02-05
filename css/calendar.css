@@ -5,8 +5,9 @@
 }
 #boards label
 {
+  display: inline-block;
   border-radius: 4px;
-  margin: 5px;
+  margin: 2px;
   padding: 3px;
   background-color: gray;
   cursor: pointer;
