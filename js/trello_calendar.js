@@ -25,7 +25,11 @@ App.collection.Cards = Backbone.Collection.extend({});
 /**
  * Board model
  */
-App.model.Board = Backbone.Model.extend({});
+App.model.Board = Backbone.Model.extend({
+    defaults: {
+        hidden: false
+    }
+});
 
 /**
  * Board collection
@@ -66,10 +70,37 @@ App.view.Board = Backbone.View.extend({
 
     tagName: 'label',
 
+    initialize: function() {
+        this.initFromLocalStorage();
+        this.model.bind('change:hidden', this.saveStateToLocalStorage, this);
+    },
+
+    initFromLocalStorage: function() {
+        var value = this.getValue("false");
+        if (value === "true" || value === "false") {
+            this.model.set({hidden: (value === "true")});
+        }
+    },
+
+    saveStateToLocalStorage: function() {
+        if (!window.localStorage) return;
+        var key = 'board-state-'+ this.model.id +"-hidden";
+        var value = window.localStorage.setItem(key, this.model.get('hidden'));
+    },
+
+    getValue: function(defaultValue) {
+        if (!window.localStorage) return defaultValue;
+        var key = 'board-state-'+ this.model.id +"-hidden";
+        var value = window.localStorage.getItem(key);
+        if (value === null)
+            return defaultValue;
+        return value;
+    },
+
     click: function(e) {
         var hidden = true;
         if ($(e.target).is(':checked')) {
-            hidden = false
+            hidden = false;
         }
         this.model.set({hidden: hidden});
         $(this.el).toggleClass('checked');
@@ -78,13 +109,14 @@ App.view.Board = Backbone.View.extend({
     render: function() {
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
-                                        checked: true});
+                                        checked: !this.model.get('hidden')});
         var color = "#"+this.model.id.substr(0, 6);
-        $(this.el).toggleClass('checked')
-                  .css({'background-color': color})
+        $(this.el).css({'background-color': color})
                   .attr('title', 'Show cards from the board '+  this.model.get('name'))
                   .text(this.model.get('name'))
                   .append(input);
+        if (!this.model.get('hidden') === true)
+            $(this.el).addClass('checked');
         return this;
     }
 });
@@ -153,13 +185,16 @@ $(document).ready(function() {
     boards.bind('add', renderBoard);
 
     function listBoards(me) {
-        return function(tBoards) {
-            _(tBoards).each(function(board) {
-                boards.add(new App.model.Board(board));
-                Trello.get('/boards/'+ board.id +'/cards/all', {badges: true}).done(function(tCards) {
-                    _(tCards).each(function(card) {
-                        if (!card.badges.due) return;
-                        cards.add(new App.model.Card(card));
+        return function(boardsJSON) {
+            _(boardsJSON).each(function(boardJSON) {
+                var board = new App.model.Board(boardJSON);
+                boards.add(board);
+                Trello.get('/boards/'+ board.id +'/cards/all', {badges: true}).done(function(cardsJSON) {
+                    _(cardsJSON).each(function(cardJSON) {
+                        if (!cardJSON.badges.due) return;
+                        var card = new App.model.Card(cardJSON);
+                        card.set({hidden: board.get('hidden')});
+                        cards.add(card);
                     });
                 });
             });
