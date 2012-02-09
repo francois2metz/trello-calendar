@@ -36,6 +36,10 @@ App.model.Prefs = Backbone.Model.extend({
  * Current User model
  */
 App.model.CurrentUser = Backbone.Model.extend({
+    parse: function(user) {
+        return JSON.parse(user);
+    },
+
     sync: function(method, model, options) {
         if (method == 'read') {
             return Trello.get('/members/me', {}, options.success, options.error);
