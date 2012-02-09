@@ -31,6 +31,19 @@ App.model.Prefs = Backbone.Model.extend({
 });
 
 /**
+ * Current User model
+ */
+App.model.CurrentUser = Backbone.Model.extend({
+    sync: function(method, model, options) {
+        if (method == 'read') {
+            return Trello.get('/members/me', {}, options.success, options.error);
+        } else {
+            throw "not (yet) supported";
+        }
+    }
+});
+
+/**
  * Card model
  */
 App.model.Card = Backbone.Model.extend({
@@ -56,11 +69,7 @@ App.collection.Cards = Backbone.Collection.extend({
 
     sync: function(method, model, options) {
         if (method == 'read') {
-            if (options.only_me) {
-                return Trello.get('/members/me/cards/all', {badges: true}, options.success, options.error);
-            } else {
-                return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
-            }
+            return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
         } else {
             throw "not (yet) supported";
         }
@@ -161,7 +170,6 @@ App.view.Card = Backbone.View.extend({
 App.view.CardsBoard = Backbone.View.extend({
     initialize: function() {
         this.views = [];
-        this.model.bind('change:hidden', this._toggleVisibily, this);
         this.model.cards().bind('reset', this.render, this);
     },
 
@@ -173,20 +181,12 @@ App.view.CardsBoard = Backbone.View.extend({
         this.views = this.model.cards().chain().map(_.bind(function(card) {
             // no arm, no chocolate
             if (!card.get('badges').due) return;
-            card.set({hidden: this.model.get('hidden')});
             return new App.view.Card({model: card,
                                       el: this.el}).render();
         }, this)).filter(function(view) {
             return view;
         }).value();
         return this;
-    },
-
-    _toggleVisibily: function() {
-        var model = this.model;
-        this.model.cards().each(function(card) {
-            card.set({hidden: model.get('hidden')});
-        });
     }
 });
 
@@ -292,12 +292,18 @@ App.view.Boards = Backbone.View.extend({
 App.view.Calendar = Backbone.View.extend({
     initialize: function() {
         this.boards = new App.collection.Boards();
+        this.currentUser = new App.model.CurrentUser();
+
         this.prefs = new App.model.Prefs();
         this.prefs.fetch();
-        this.prefs.bind('change', this._getCards, this);
+        this.prefs.bind('change', this._updateBoardsVisibility, this);
+
+        this.currentUser.fetch().done(_.bind(function() {
+            this.boards.fetch();
+        }, this));
 
         this.boards.bind('reset', this._getCards, this);
-        this.boards.fetch();
+        this.boards.bind('change:hidden', this._updateBoardVisibility, this);
     },
 
     render: function() {
@@ -311,9 +317,26 @@ App.view.Calendar = Backbone.View.extend({
         return this;
     },
 
+    _updateBoardsVisibility: function() {
+        this.boards.each(_.bind(function(board) {
+            this._updateBoardVisibility(board);
+        }, this));
+    },
+
+    _updateBoardVisibility: function(board) {
+        board.cards().each(_.bind(function(card) {
+            var hidden = board.get('hidden');
+            if (!hidden && this.prefs.get('only_me') && !_(card.get('idMembers')).include(this.currentUser.id)) {
+                hidden = true;
+            }
+            card.set({hidden: hidden});
+        }, this));
+    },
+
     _getCards: function() {
         this.boards.each(_.bind(function(board) {
-            board.cards().fetch({only_me: this.prefs.get('only_me')});
+            board.cards().fetch();
+            board.cards().bind('reset', _.bind(this._updateBoardVisibility, this, board));
         }, this));
     },
 
