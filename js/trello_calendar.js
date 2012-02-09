@@ -10,7 +10,8 @@ var App = {
  */
 App.model.Prefs = Backbone.Model.extend({
     defaults: {
-        only_me: false
+        only_me: false,
+        not_archived: false
     },
 
     sync: function(method, model, options) {
@@ -70,7 +71,11 @@ App.collection.Cards = Backbone.Collection.extend({
 
     sync: function(method, model, options) {
         if (method == 'read') {
-            return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
+            if (options.not_archived) {
+                return Trello.get('/boards/'+ this.options.board.id +'/cards/visible', {badges: true}, options.success, options.error);
+            } else {
+                return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
+            }
         } else {
             throw "not (yet) supported";
         }
@@ -217,11 +222,10 @@ App.view.Filter = Backbone.View.extend({
     tagName: 'label',
 
     click: function(e) {
-        var only_me = false;
-        if ($(e.target).is(':checked')) {
-            only_me = true;
-        }
-        this.model.set({only_me: only_me});
+        var checked = $(e.target).is(':checked');
+        var data = {};
+        data[this.options.name] = checked;
+        this.model.set(data);
         this.model.save();
         $(this.el).toggleClass('checked');
     },
@@ -229,9 +233,9 @@ App.view.Filter = Backbone.View.extend({
     render: function() {
         var input = this.make('input', {type: 'checkbox',
                                         value: "onlyme",
-                                        checked: this.model.get('only_me')});
-        $(this.el).text("Show only cards assigned to me")
-                  .addClass((this.model.get('only_me') ? 'checked': ''))
+                                        checked: this.model.get(this.options.name)});
+        $(this.el).text(this.options.label)
+                  .addClass((this.model.get(this.options.name) ? 'checked': ''))
                   .append(input);
         return this;
     }
@@ -248,10 +252,7 @@ App.view.Board = Backbone.View.extend({
     tagName: 'label',
 
     click: function(e) {
-        var hidden = true;
-        if ($(e.target).is(':checked')) {
-            hidden = false;
-        }
+        var hidden = !$(e.target).is(':checked');
         this.model.set({hidden: hidden});
         $(this.el).toggleClass('checked');
     },
@@ -297,7 +298,8 @@ App.view.Calendar = Backbone.View.extend({
 
         this.prefs = new App.model.Prefs();
         this.prefs.fetch();
-        this.prefs.bind('change', this._updateBoardsVisibility, this);
+        this.prefs.bind('change:only_me', this._updateBoardsVisibility, this);
+        this.prefs.bind('change:not_archived', this._getCards, this);
 
         this.currentUser.fetch().done(_.bind(function() {
             this.boards.fetch();
@@ -313,8 +315,19 @@ App.view.Calendar = Backbone.View.extend({
                              el: this.$('#boards').get(0)}).render();
         new App.view.Cards({collection: this.boards,
                             el: this.$('#calendar').get(0)}).render();
-        var filter = new App.view.Filter({model: this.prefs}).render();
-        this.$('#prefs').append(filter.el);
+        var filters = [
+            new App.view.Filter({model: this.prefs,
+                                 name: 'only_me',
+                                 label: "Show only cards assigned to me"
+                                }),
+            new App.view.Filter({model: this.prefs,
+                                 name: 'not_archived',
+                                 label: "Show only cards not archived"
+                                })
+        ];
+        _(filters).each(_.bind(function(filter) {
+            this.$('#prefs').append(filter.render().el);
+        }, this));
         return this;
     },
 
@@ -336,8 +349,8 @@ App.view.Calendar = Backbone.View.extend({
 
     _getCards: function() {
         this.boards.each(_.bind(function(board) {
-            board.cards().fetch();
             board.cards().bind('reset', _.bind(this._updateBoardVisibility, this, board));
+            board.cards().fetch({not_archived: this.prefs.get('not_archived')});
         }, this));
     },
 
