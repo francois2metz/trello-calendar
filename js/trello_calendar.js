@@ -5,6 +5,32 @@ var App = {
 };
 
 /**
+ * Pref model
+ * Stored in localStorage
+ */
+App.model.Prefs = Backbone.Model.extend({
+    defaults: {
+        only_me: false
+    },
+
+    sync: function(method, model, options) {
+        if (method == 'create' || method == 'update') {
+            localStorage.setItem('prefs', JSON.stringify(model.toJSON()));
+        } else if (method == 'read') {
+            var prefs = localStorage.getItem('prefs');
+            if (prefs) {
+                try {
+                    prefs = JSON.parse(prefs);
+                } catch(e) {}
+                options.success(prefs);
+            }
+        } else {
+            throw "not (yet) supported";
+        }
+    }
+});
+
+/**
  * Card model
  */
 App.model.Card = Backbone.Model.extend({
@@ -30,7 +56,11 @@ App.collection.Cards = Backbone.Collection.extend({
 
     sync: function(method, model, options) {
         if (method == 'read') {
-            return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
+            if (options.only_me) {
+                return Trello.get('/members/me/cards/all', {badges: true}, options.success, options.error);
+            } else {
+                return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
+            }
         } else {
             throw "not (yet) supported";
         }
@@ -118,6 +148,45 @@ App.view.Card = Backbone.View.extend({
             }, true);
         }
         return this;
+    },
+
+    remove: function() {
+        $(this.el).fullCalendar('removeEvents', this.model.id);
+    }
+});
+
+/**
+ * Render cards of one board
+ */
+App.view.CardsBoard = Backbone.View.extend({
+    initialize: function() {
+        this.views = [];
+        this.model.bind('change:hidden', this._toggleVisibily, this);
+        this.model.cards().bind('reset', this.render, this);
+    },
+
+    render: function() {
+        // remove previously events
+        _(this.views).each(function(view) {
+            view.remove();
+        });
+        this.views = this.model.cards().chain().map(_.bind(function(card) {
+            // no arm, no chocolate
+            if (!card.get('badges').due) return;
+            card.set({hidden: this.model.get('hidden')});
+            return new App.view.Card({model: card,
+                                      el: this.el}).render();
+        }, this)).filter(function(view) {
+            return view;
+        }).value();
+        return this;
+    },
+
+    _toggleVisibily: function() {
+        var model = this.model;
+        this.model.cards().each(function(card) {
+            card.set({hidden: model.get('hidden')});
+        });
     }
 });
 
@@ -129,31 +198,41 @@ App.view.Cards = Backbone.View.extend({
         this.collection.bind('reset', this.render, this);
     },
 
-    renderBoardCards: function(board) {
-        board.cards().each(_.bind(function(card) {
-            // no arm, no chocolate
-            if (!card.get('badges').due) return;
-            card.set({hidden: board.get('hidden')});
-            new App.view.Card({model: card,
-                               el: this.el}).render();
+    render: function() {
+        this.collection.each(_.bind(function(board) {
+            new App.view.CardsBoard({model: board,
+                                     el: this.el}).render();
         }, this));
+        return this;
+    }
+
+});
+
+App.view.Filter = Backbone.View.extend({
+    events: {
+        "click input": "click"
+    },
+
+    tagName: 'label',
+
+    click: function(e) {
+        var only_me = false;
+        if ($(e.target).is(':checked')) {
+            only_me = true;
+        }
+        this.model.set({only_me: only_me});
+        this.model.save();
+        $(this.el).toggleClass('checked');
     },
 
     render: function() {
-        this.collection.each(_.bind(function(board) {
-            board.cards().bind('reset', function() {
-                this.renderBoardCards(board);
-            }, this);
-            this.renderBoardCards(board);
-            board.bind('change:hidden', this._toggleVisibily, this);
-            this._toggleVisibily(board);
-        }, this));
-    },
-
-    _toggleVisibily: function(board) {
-        board.cards().each(function(card) {
-            card.set({hidden: board.get('hidden')});
-        });
+        var input = this.make('input', {type: 'checkbox',
+                                        value: "onlyme",
+                                        checked: this.model.get('only_me')});
+        $(this.el).text("Show only cards assigned to me")
+                  .addClass((this.model.get('only_me') ? 'checked': ''))
+                  .append(input);
+        return this;
     }
 });
 
@@ -213,6 +292,9 @@ App.view.Boards = Backbone.View.extend({
 App.view.Calendar = Backbone.View.extend({
     initialize: function() {
         this.boards = new App.collection.Boards();
+        this.prefs = new App.model.Prefs();
+        this.prefs.fetch();
+        this.prefs.bind('change', this._getCards, this);
 
         this.boards.bind('reset', this._getCards, this);
         this.boards.fetch();
@@ -224,13 +306,15 @@ App.view.Calendar = Backbone.View.extend({
                              el: this.$('#boards').get(0)}).render();
         new App.view.Cards({collection: this.boards,
                             el: this.$('#calendar').get(0)}).render();
+        var filter = new App.view.Filter({model: this.prefs}).render();
+        this.$('#prefs').append(filter.el);
         return this;
     },
 
     _getCards: function() {
-        this.boards.each(function(board) {
-            board.cards().fetch();
-        });
+        this.boards.each(_.bind(function(board) {
+            board.cards().fetch({only_me: this.prefs.get('only_me')});
+        }, this));
     },
 
     _createCalendar: function() {

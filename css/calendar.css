@@ -1,9 +1,9 @@
-#boards
+.filters
 {
   margin: 0 0 5px;
   color: white;
 }
-#boards label
+.filters label
 {
   display: inline-block;
   border-radius: 4px;
@@ -11,15 +11,15 @@
   padding: 3px;
   cursor: pointer;
 }
-#boards label:not(.checked)
+.filters label:not(.checked)
 {
   background-color: gray !important;
 }
-#boards label.checked
+.filters label.checked
 {
   background-color: #990000;
 }
-#boards input
+.filters input
 {
   display: none;
 }
