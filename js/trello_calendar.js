@@ -69,6 +69,10 @@ App.collection.Cards = Backbone.Collection.extend({
         this.options = options;
     },
 
+    parse: function(cards) {
+        return JSON.parse(cards);
+    },
+
     sync: function(method, model, options) {
         if (method == 'read') {
             var filter = options.not_archived ? 'visible' : 'all';
@@ -126,6 +130,10 @@ App.model.Board = Backbone.Model.extend({
  */
 App.collection.Boards = Backbone.Collection.extend({
     model: App.model.Board,
+
+    parse: function(boards) {
+        return JSON.parse(boards);
+    },
 
     sync: function(method, model, options) {
         if (method == 'read') {
