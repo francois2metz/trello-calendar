@@ -71,11 +71,9 @@ App.collection.Cards = Backbone.Collection.extend({
 
     sync: function(method, model, options) {
         if (method == 'read') {
-            if (options.not_archived) {
-                return Trello.get('/boards/'+ this.options.board.id +'/cards/visible', {badges: true}, options.success, options.error);
-            } else {
-                return Trello.get('/boards/'+ this.options.board.id +'/cards/all', {badges: true}, options.success, options.error);
-            }
+            var filter = options.not_archived ? 'visible' : 'all';
+            return Trello.get('/boards/'+ this.options.board.id +'/cards', {badges: true,
+                                                                            filter: filter}, options.success, options.error);
         } else {
             throw "not (yet) supported";
         }
@@ -214,6 +212,9 @@ App.view.Cards = Backbone.View.extend({
 
 });
 
+/**
+ * Render a generic filter
+ */
 App.view.Filter = Backbone.View.extend({
     events: {
         "click input": "click"
