@@ -92,7 +92,7 @@ App.model.Board = Backbone.Model.extend({
 
     initialize: function() {
         this._initFromLocalStorage();
-        this.bind('change:hidden', this._saveStateToLocalStorage, this);
+        this.on('change:hidden', this._saveStateToLocalStorage, this);
         this._cards = new App.collection.Cards([], {board: this});
     },
 
@@ -143,7 +143,7 @@ App.collection.Boards = Backbone.Collection.extend({
  */
 App.view.Card = Backbone.View.extend({
     initialize: function() {
-        this.model.bind('change', this.render, this);
+        this.model.on('change', this.render, this);
     },
 
     render: function() {
@@ -176,7 +176,7 @@ App.view.Card = Backbone.View.extend({
 App.view.CardsBoard = Backbone.View.extend({
     initialize: function() {
         this.views = [];
-        this.model.cards().bind('reset', this.render, this);
+        this.model.cards().on('reset', this.render, this);
     },
 
     render: function() {
@@ -201,7 +201,7 @@ App.view.CardsBoard = Backbone.View.extend({
  */
 App.view.Cards = Backbone.View.extend({
     initialize: function() {
-        this.collection.bind('reset', this.render, this);
+        this.collection.on('reset', this.render, this);
     },
 
     render: function() {
@@ -223,9 +223,7 @@ App.view.Filter = Backbone.View.extend({
 
     click: function(e) {
         var checked = $(e.target).is(':checked');
-        var data = {};
-        data[this.options.name] = checked;
-        this.model.set(data);
+        this.model.set(this.options.name, checked);
         this.model.save();
         $(this.el).toggleClass('checked');
     },
@@ -277,7 +275,7 @@ App.view.Board = Backbone.View.extend({
  */
 App.view.Boards = Backbone.View.extend({
     initialize: function() {
-        this.collection.bind('reset', this.render, this);
+        this.collection.on('reset', this.render, this);
     },
 
     render: function() {
@@ -298,15 +296,15 @@ App.view.Calendar = Backbone.View.extend({
 
         this.prefs = new App.model.Prefs();
         this.prefs.fetch();
-        this.prefs.bind('change:only_me', this._updateBoardsVisibility, this);
-        this.prefs.bind('change:not_archived', this._getCards, this);
+        this.prefs.on('change:only_me', this._updateBoardsVisibility, this);
+        this.prefs.on('change:not_archived', this._getCards, this);
 
         this.currentUser.fetch().done(_.bind(function() {
             this.boards.fetch();
         }, this));
 
-        this.boards.bind('reset', this._getCards, this);
-        this.boards.bind('change:hidden', this._updateBoardVisibility, this);
+        this.boards.on('reset', this._getCards, this);
+        this.boards.on('change:hidden', this._updateBoardVisibility, this);
     },
 
     render: function() {
@@ -349,7 +347,7 @@ App.view.Calendar = Backbone.View.extend({
 
     _getCards: function() {
         this.boards.each(_.bind(function(board) {
-            board.cards().bind('reset', _.bind(this._updateBoardVisibility, this, board));
+            board.cards().on('reset', _.bind(this._updateBoardVisibility, this, board));
             board.cards().fetch({not_archived: this.prefs.get('not_archived')});
         }, this));
     },
