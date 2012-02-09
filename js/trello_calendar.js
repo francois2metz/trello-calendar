@@ -14,6 +14,7 @@ App.model.Prefs = Backbone.Model.extend({
     },
 
     sync: function(method, model, options) {
+        if (!window.localStorage) return;
         if (method == 'create' || method == 'update') {
             localStorage.setItem('prefs', JSON.stringify(model.toJSON()));
         } else if (method == 'read') {
