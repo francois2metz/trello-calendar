@@ -5,7 +5,16 @@ var App = {
 };
 
 /**
- * Pref model
+ * My extension to backbone models
+ * Take a value and return the color value
+ * no magic here, the value should be like an id (eg: 4ef2f3d5fba0375c241b69a8)
+ */
+Backbone.Model.prototype.valueToColor = function(value) {
+    return "#"+ value.substr(0, 6);
+}
+
+/**
+ * Prefs model
  * Stored in localStorage
  */
 App.model.Prefs = Backbone.Model.extend({
@@ -53,6 +62,10 @@ App.model.CurrentUser = Backbone.Model.extend({
  * Card model
  */
 App.model.Card = Backbone.Model.extend({
+    boardColor: function() {
+        return this.valueToColor(this.get('idBoard'));
+    },
+
     sync: function(method, model, options) {
         if (method == 'update') {
             // only support update due date
@@ -106,11 +119,13 @@ App.model.Board = Backbone.Model.extend({
         return this._cards;
     },
 
+    color: function() {
+        return this.valueToColor(this.id);
+    },
+
     _initFromLocalStorage: function() {
         var value = this._getValue("false");
-        if (value === "true" || value === "false") {
-            this.set({hidden: (value === "true")});
-        }
+        this.set({hidden: (value === "true")});
     },
 
     _saveStateToLocalStorage: function() {
@@ -161,14 +176,13 @@ App.view.Card = Backbone.View.extend({
             $(this.el).fullCalendar('removeEvents', this.model.id);
         } else {
             $(this.el).fullCalendar('removeEvents', this.model.id);
-            var color = "#"+this.model.get('idBoard').substr(0, 6);
             $(this.el).fullCalendar('renderEvent', {
                 backboneModel: this.model,
                 id: this.model.id,
                 allDay: false,
                 title: this.model.get('name'),
                 start: this.model.get('badges').due,
-                color: color,
+                color: this.model.boardColor(),
                 url: this.model.get('url')
             }, true);
         }
@@ -272,8 +286,7 @@ App.view.Board = Backbone.View.extend({
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
                                         checked: !this.model.get('hidden')});
-        var color = "#"+this.model.id.substr(0, 6);
-        $(this.el).css({'background-color': color})
+        $(this.el).css({'background-color': this.model.color()})
                   .attr('title', 'Show cards from the board '+  this.model.get('name'))
                   .text(this.model.get('name'))
                   .append(input);
