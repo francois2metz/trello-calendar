@@ -2,6 +2,8 @@
 
 A calendar with all cards shown by due date.
 
+If you have any features suggestion, post on the trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
+
 ## Install
 
 It's just an HTML page. Use your favorite web server, like Nginx, and visit *index.html*.
