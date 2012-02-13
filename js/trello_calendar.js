@@ -330,19 +330,16 @@ App.view.Boards = Backbone.View.extend({
 App.view.Calendar = Backbone.View.extend({
     initialize: function() {
         this.boards = new App.collection.Boards();
-        this.currentUser = new App.model.CurrentUser();
+        this.currentUser = this.options.currentUser;
 
         this.prefs = new App.model.Prefs();
-        this.prefs.fetch();
         this.prefs.on('change:only_me', this._updateBoardsVisibility, this);
         this.prefs.on('change:not_archived', this._getCards, this);
-
-        this.currentUser.fetch().done(_.bind(function() {
-            this.boards.fetch();
-        }, this));
+        this.prefs.fetch();
 
         this.boards.on('reset', this._getCards, this);
         this.boards.on('change:hidden', this._updateBoardVisibility, this);
+        this.boards.fetch();
     },
 
     render: function() {
@@ -439,6 +436,16 @@ $(document).ready(function() {
 
     function onAuthorize() {
         if (!Trello.authorized()) return Trello.authorize(defaultOptions);
-        new App.view.Calendar({el: $('body').get(0)}).render();
+        var currentUser = new App.model.CurrentUser();
+        currentUser.fetch().done(_.bind(function() {
+            new App.view.Calendar({el: $('body').get(0), currentUser: currentUser}).render();
+        }, this)).fail(function(xhr) {
+            if (xhr.status == 401) {
+                Trello.deauthorize();
+                Trello.authorize(defaultOptions);
+            } else {
+                $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
+            }
+        });
     }
 });
