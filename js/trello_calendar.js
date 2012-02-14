@@ -14,17 +14,6 @@ Backbone.Model.prototype.valueToColor = function(value) {
 }
 
 /**
- * Fix JSON parsing firefox bug
- * https://trello.com/card/firefox-isn-t-interpreting-response-as-json-when-using-cors-via-client-js/4ed7e27fe6abb2517a21383d/121
- * Remove this function when deployed
- */
-Backbone.Model.prototype.fixParseJSON = Backbone.Collection.prototype.fixParseJSON = function(value) {
-    if (_.isString(value))
-        return JSON.parse(value);
-    return value;
-}
-
-/**
  * Prefs model
  * Stored in localStorage
  */
@@ -56,10 +45,6 @@ App.model.Prefs = Backbone.Model.extend({
  * Current User model
  */
 App.model.CurrentUser = Backbone.Model.extend({
-    parse: function(user) {
-        return this.fixParseJSON(user);
-    },
-
     sync: function(method, model, options) {
         if (method == 'read') {
             return Trello.get('/members/me', {}, options.success, options.error);
@@ -95,10 +80,6 @@ App.collection.Cards = Backbone.Collection.extend({
 
     initialize: function(models, options) {
         this.options = options;
-    },
-
-    parse: function(cards) {
-        return this.fixParseJSON(cards);
     },
 
     sync: function(method, model, options) {
@@ -160,11 +141,6 @@ App.model.Board = Backbone.Model.extend({
  */
 App.collection.Boards = Backbone.Collection.extend({
     model: App.model.Board,
-
-    parse: function(boards) {
-        return this.fixParseJSON(boards);
-
-    },
 
     sync: function(method, model, options) {
         if (method == 'read') {
