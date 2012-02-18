@@ -304,6 +304,10 @@ App.view.Boards = Backbone.View.extend({
  * Main view
  */
 App.view.Calendar = Backbone.View.extend({
+    events: {
+        'click .quit': 'quit'
+    },
+
     initialize: function() {
         this.boards = new App.collection.Boards();
         this.currentUser = this.options.currentUser;
@@ -337,7 +341,15 @@ App.view.Calendar = Backbone.View.extend({
         _(filters).each(_.bind(function(filter) {
             this.$('#prefs').append(filter.render().el);
         }, this));
+        $(this.make('a', {'class': 'quit',
+                          href: '#'}, 'Deauthorize')).appendTo(this.el);
         return this;
+    },
+
+    quit: function(e) {
+        e.preventDefault();
+        Trello.deauthorize();
+        location.reload();
     },
 
     _updateBoardsVisibility: function() {
@@ -400,7 +412,8 @@ $(document).ready(function() {
      * Authentication dance
      *  1. try to get a token from a previous session
      *  2. if no authorized token found, ask a token
-     *  3. start application
+     *  3. try to fetch the current user, in case of a revoked/expired token
+     *  4. start application
      */
     Trello.authorize(_.extend({}, defaultOptions, {
         interactive: false
@@ -413,9 +426,9 @@ $(document).ready(function() {
     function onAuthorize() {
         if (!Trello.authorized()) return Trello.authorize(defaultOptions);
         var currentUser = new App.model.CurrentUser();
-        currentUser.fetch().done(_.bind(function() {
+        currentUser.fetch().done(function() {
             new App.view.Calendar({el: $('body').get(0), currentUser: currentUser}).render();
-        }, this)).fail(function(xhr) {
+        }).fail(function(xhr) {
             if (xhr.status == 401) {
                 Trello.deauthorize();
                 Trello.authorize(defaultOptions);

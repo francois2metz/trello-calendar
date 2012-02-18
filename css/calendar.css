@@ -23,3 +23,10 @@
 {
   display: none;
 }
+
+.quit
+{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
