@@ -402,6 +402,14 @@ App.view.Calendar = Backbone.View.extend({
 });
 
 $(document).ready(function() {
+    function onUpdateReady() {
+        console.log('found new version!');
+    }
+    window.applicationCache.addEventListener('updateready', onUpdateReady);
+    if(window.applicationCache.status === window.applicationCache.UPDATEREADY) {
+        onUpdateReady();
+    }
+
     var defaultOptions = {
         scope: {
             write: true
