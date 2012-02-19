@@ -161,10 +161,10 @@ App.view.Card = Backbone.View.extend({
 
     render: function() {
         if (this.model.get('hidden')) {
-            $(this.el).fullCalendar('removeEvents', this.model.id);
+            this.$el.fullCalendar('removeEvents', this.model.id);
         } else {
-            $(this.el).fullCalendar('removeEvents', this.model.id);
-            $(this.el).fullCalendar('renderEvent', {
+            this.$el.fullCalendar('removeEvents', this.model.id);
+            this.$el.fullCalendar('renderEvent', {
                 backboneModel: this.model,
                 id: this.model.id,
                 allDay: false,
@@ -178,7 +178,7 @@ App.view.Card = Backbone.View.extend({
     },
 
     remove: function() {
-        $(this.el).fullCalendar('removeEvents', this.model.id);
+        this.$el.fullCalendar('removeEvents', this.model.id);
     }
 });
 
@@ -240,16 +240,16 @@ App.view.Filter = Backbone.View.extend({
         var checked = $(e.target).is(':checked');
         this.model.set(this.options.name, checked);
         this.model.save();
-        $(this.el).toggleClass('checked');
+        this.$el.toggleClass('checked');
     },
 
     render: function() {
         var input = this.make('input', {type: 'checkbox',
                                         value: "onlyme",
                                         checked: this.model.get(this.options.name)});
-        $(this.el).text(this.options.label)
-                  .addClass((this.model.get(this.options.name) ? 'checked': ''))
-                  .append(input);
+        this.$el.text(this.options.label)
+                .addClass((this.model.get(this.options.name) ? 'checked': ''))
+                .append(input);
         return this;
     }
 });
@@ -267,19 +267,19 @@ App.view.Board = Backbone.View.extend({
     click: function(e) {
         var hidden = !$(e.target).is(':checked');
         this.model.set({hidden: hidden});
-        $(this.el).toggleClass('checked');
+        this.$el.toggleClass('checked');
     },
 
     render: function() {
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
                                         checked: !this.model.get('hidden')});
-        $(this.el).css({'background-color': this.model.color()})
-                  .attr('title', 'Show cards from the board '+  this.model.get('name'))
-                  .text(this.model.get('name'))
-                  .append(input);
+        this.$el.css({'background-color': this.model.color()})
+                .attr('title', 'Show cards from the board '+  this.model.get('name'))
+                .text(this.model.get('name'))
+                .append(input);
         if (!this.model.get('hidden') === true)
-            $(this.el).addClass('checked');
+            this.$el.addClass('checked');
         return this;
     }
 });
