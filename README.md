@@ -8,6 +8,8 @@ If you have any features suggestion, post on the trello board: https://trello.co
 
 It's just an HTML page. Use your favorite web server, like Nginx, and visit *index.html*.
 
+Or you can use the "hosted" page: http://trellocalendar.2metz.fr/
+
 ## License
 
 (c) 2012 François de Metz
