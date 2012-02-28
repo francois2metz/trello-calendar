@@ -387,6 +387,9 @@ App.view.Calendar = Backbone.View.extend({
             disableResizing: true,
             ignoreTimezone: false,
             timeFormat: "H'h'(mm)",
+            eventAfterRender: function(event, element, view) {
+                $(element).attr('title', event.backboneModel.get('desc'));
+            },
             eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
                 var card = event.backboneModel;
                 var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ssZ");
