@@ -66,6 +66,8 @@ App.model.Card = Backbone.Model.extend({
         if (method == 'update') {
             // only support update due date
             return Trello.put('/cards/'+ model.id, {due: model.get('badges').due}, options.success, options.error);
+        } else if (method == 'create') {
+            return Trello.post('/cards/', model.toJSON(), options.success, options.error);
         } else {
             throw "not (yet) supported";
         }
@@ -94,6 +96,30 @@ App.collection.Cards = Backbone.Collection.extend({
 });
 
 /**
+ * List model
+ */
+App.model.List = Backbone.Model.extend({});
+
+/**
+ * Lists collections
+ */
+App.collection.Lists = Backbone.Collection.extend({
+    model: App.model.List,
+
+    initialize: function(models, options) {
+        this.options = options;
+    },
+
+    sync: function(method, model, options) {
+        if (method == 'read') {
+            return Trello.get('/boards/'+ this.options.board.id +'/lists', {filter: 'open'}, options.success, options.error);
+        } else {
+            throw "not (yet) supported";
+        }
+    }
+});
+
+/**
  * Board model
  */
 App.model.Board = Backbone.Model.extend({
@@ -105,10 +131,15 @@ App.model.Board = Backbone.Model.extend({
         this._initFromLocalStorage();
         this.on('change:hidden', this._saveStateToLocalStorage, this);
         this._cards = new App.collection.Cards([], {board: this});
+        this._lists = new App.collection.Lists([], {board: this});
     },
 
     cards: function() {
         return this._cards;
+    },
+
+    lists: function() {
+        return this._lists;
     },
 
     color: function() {
@@ -148,6 +179,56 @@ App.collection.Boards = Backbone.Collection.extend({
         } else {
             throw "not (yet) supported";
         }
+    }
+});
+
+App.view.CreateCard = Backbone.View.extend({
+    events: {
+        "change select": "updateModel",
+        "input input,textarea": "updateModel",
+        "click input[type='submit']": "submit"
+    },
+
+    className: 'create',
+
+    initialize: function() {
+        this.model.on('change:idBoard', this.updateLists, this);
+    },
+
+    render: function() {
+        var title = this.make('input', {name: 'name', placeholder: 'Name'});
+        this.$el.append(title);
+        var desc = this.make('textarea', {name: 'desc', placeholder: 'Description'});
+        this.$el.append(desc);
+        var ok = this.make('input', {type: 'submit', value: 'ok'});
+        this.$el.append(ok);
+        var select = this._createSelect(this.collection, 'idBoard');
+        this.$el.append(select);
+    },
+
+    updateLists: function() {
+        this.$('.idList').remove();
+        this.collection.get(this.model.get('idBoard')).lists().fetch({success: _.bind(function(lists) {
+            var select = this._createSelect(lists, 'idList');
+            this.$el.append(select);
+        }, this)});
+    },
+
+    updateModel: function(e) {
+        this.model.set($(e.target).attr('name'), $(e.target).val());
+    },
+
+    submit: function(e) {
+        console.log(this.model.toJSON());
+        this.trigger('submit', this.model);
+    },
+
+    _createSelect: function(collection, name) {
+        var select = this.make('select', {name: name, 'class': name});
+        collection.each(_.bind(function(model) {
+            $(select).append(this.make('option', {value: model.id}, model.get('name')));
+        }, this));
+        return select;
     }
 });
 
@@ -376,6 +457,11 @@ App.view.Calendar = Backbone.View.extend({
     },
 
     _createCalendar: function() {
+        var formatDateToTrello =  function(date) {
+            return moment(date).format("YYYY-MM-DDTHH:mm:ssZ");
+        };
+        var boards = this.boards;
+        var $el = this.$el;
         var calendar = this.$('#calendar').fullCalendar({
             header: {
 	        left: 'prev,next today',
@@ -392,10 +478,35 @@ App.view.Calendar = Backbone.View.extend({
             },
             eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc) {
                 var card = event.backboneModel;
-                var date = moment(event.start).format("YYYY-MM-DDTHH:mm:ssZ");
+                var date = formatDateToTrello(event.start);
                 var badges = _.extend({}, card.get('badges'), {due: date});
                 card.set({badges: badges});
                 card.save();
+            },
+            selectable: true,
+            select: function(startDate, endDate, allDay, jsEvent, view) {
+                $el.find('.create').remove();
+                var card = new App.model.Card({due: formatDateToTrello(startDate)});
+                var createCard = new App.view.CreateCard({model: card,
+                                                          collection: boards});
+                createCard.render();
+                $(createCard.el).css({
+                    position: 'absolute',
+                    top: view.element.offset().top,
+                    left: view.element.offset().left,
+                });
+                $el.append(createCard.el);
+                createCard.on('submit', function(card) {
+                    return;
+                    card.save({}, {
+                        error: function() {
+                            console.log('error on save');
+                        },
+                        success: function() {
+                            boards.get(card.get('idBoard')).cards().fetch();
+                        }
+                    });
+                });
             }
         });
         $(window).resize(function() {
