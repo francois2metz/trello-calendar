@@ -262,25 +262,40 @@ App.view.Board = Backbone.View.extend({
         "click input": "click"
     },
 
-    tagName: 'label',
+    tagName: 'span',
+
+    initialize: function() {
+        this.model.on('change:waiting', this._renderWaiting, this);
+    },
 
     click: function(e) {
         var hidden = !$(e.target).is(':checked');
         this.model.set({hidden: hidden});
-        this.$el.toggleClass('checked');
+        this.$('label').toggleClass('checked');
     },
 
     render: function() {
+        var label = this.make('label');
         var input = this.make('input', {type: 'checkbox',
                                         value: this.model.id,
                                         checked: !this.model.get('hidden')});
-        this.$el.css({'background-color': this.model.color()})
+        $(label).css({'background-color': this.model.color()})
                 .attr('title', 'Show cards from the board '+  this.model.get('name'))
                 .text(this.model.get('name'))
                 .append(input);
         if (!this.model.get('hidden') === true)
-            this.$el.addClass('checked');
+            $(label).addClass('checked');
+        this.$el.append(label);
+        this._renderWaiting();
         return this;
+    },
+
+    _renderWaiting: function() {
+        if (this.model.get('waiting')) {
+            this.$el.prepend(this.make('img', {src: 'img/spinner.gif'}));
+        } else {
+            this.$('img').remove();
+        }
     }
 });
 
@@ -295,7 +310,7 @@ App.view.Boards = Backbone.View.extend({
     render: function() {
         this.collection.each(_.bind(function(board) {
             var view = new App.view.Board({model: board}).render();
-            $(view.el).appendTo(this.el);
+            this.$el.append(view.el);
         }, this));
     }
 });
@@ -370,8 +385,14 @@ App.view.Calendar = Backbone.View.extend({
 
     _getCards: function() {
         this.boards.each(_.bind(function(board) {
+            board.set({waiting: true});
             board.cards().on('reset', _.bind(this._updateBoardVisibility, this, board));
-            board.cards().fetch({not_archived: this.prefs.get('not_archived')});
+            board.cards().fetch({
+                not_archived: this.prefs.get('not_archived'),
+                success: function() {
+                    board.set({waiting: false});
+                }
+            });
         }, this));
     },
 
@@ -430,7 +451,10 @@ $(document).ready(function() {
         if (!Trello.authorized()) return Trello.authorize(defaultOptions);
         var currentUser = new App.model.CurrentUser();
         currentUser.fetch().done(function() {
-            new App.view.Calendar({el: $('body').get(0), currentUser: currentUser}).render();
+            new App.view.Calendar({
+                el: $('body').get(0),
+                currentUser: currentUser
+            }).render();
         }).fail(function(xhr) {
             if (xhr.status == 401) {
                 Trello.deauthorize();
