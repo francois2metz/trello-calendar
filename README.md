@@ -2,13 +2,28 @@
 
 A calendar with all cards shown by due date.
 
+It provides both HTML calendar and ics feeds.
+
 If you have any features suggestion, post on the trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
+
+Demo? Use the "hosted" version: http://trellocalendar.2metz.fr/
 
 ## Install
 
-It's just an HTML page. Use your favorite web server, like Nginx, and visit *index.html*.
+Check that you have node.
 
-Or you can use the "hosted" page: http://trellocalendar.2metz.fr/
+    npm install
+
+    NODE_ENV=production ./bin/trellocalendar
+
+Go to http://localhost:4000.
+
+## Configuration
+
+
+## For old users of the HTML only page
+
+The HTML/JS only page is no more available. If node is node your cup of tea, you can use the tag html-only.
 
 ## License
 

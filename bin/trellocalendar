@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+var argv = require('optimist').default('p', 4000).argv;
+
+require('../lib/app').listen(argv.p, function() {
+    console.log('listening on http://localhost:'+ argv.p)
+});

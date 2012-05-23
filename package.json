@@ -1,0 +1,24 @@
+{
+  "author": "François de Metz <francois@2metz.fr>",
+  "name": "trello_calendar",
+  "description": "Generate a ics feed of your cards.",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/francois2metz/trello-calendar.git"
+  },
+  "dependencies": {
+      "icalendar"   : ">= 0.5.4",
+      "node-trello" : "",
+      "backbone"    : "",
+      "underscore"  : "",
+      "seq"         : "",
+      "express"     : "",
+      "optimist"    : ""
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
