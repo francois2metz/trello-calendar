@@ -358,6 +358,8 @@ App.view.Calendar = Backbone.View.extend({
         }, this));
         $(this.make('a', {'class': 'quit',
                           href: '#'}, 'Deauthorize')).appendTo(this.el);
+        $(this.make('a', {'class': 'Calendar',
+                          href: '/calendar/'+ Trello.token()+'.ics'}, 'Calendar (ics) URL')).appendTo(this.el);
         return this;
     },
 
