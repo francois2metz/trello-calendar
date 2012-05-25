@@ -356,11 +356,15 @@ App.view.Calendar = Backbone.View.extend({
         _(filters).each(_.bind(function(filter) {
             this.$('#prefs').append(filter.render().el);
         }, this));
-        $(this.make('a', {'class': 'quit',
-                          href: '#'}, 'Deauthorize')).appendTo(this.el);
-        $(this.make('a', {'class': 'Calendar',
-                          href: '/calendar/'+ Trello.token()+'.ics'}, 'Calendar (ics) URL')).appendTo(this.el);
+        var ul = this.make('ul', {'class': 'links'})
+        $(this._makeLink('#', 'Deauthorize')).appendTo(ul);
+        $(this._makeLink('/calendar/'+ Trello.token()+'.ics', 'Calendar (ics) URL')).appendTo(ul);
+        this.$el.append(ul);
         return this;
+    },
+
+    _makeLink: function(href, text) {
+        return this.make('li', {}, this.make('a', {href: href}, text));
     },
 
     quit: function(e) {
