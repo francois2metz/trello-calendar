@@ -8,13 +8,18 @@
     "url": "git://github.com/francois2metz/trello-calendar.git"
   },
   "dependencies": {
-      "icalendar"   : ">= 0.5.4",
-      "node-trello" : "",
-      "backbone"    : "",
-      "underscore"  : "",
-      "seq"         : "",
-      "express"     : "",
-      "optimist"    : ""
+      "icalendar"      : "~ 0.5.4",
+      "node-trello"    : "",
+      "backbone"       : "",
+      "underscore"     : "",
+      "seq"            : "",
+      "express"        : "",
+      "jade"           : "",
+      "optimist"       : "",
+      "oauth"          : "~0.9.7",
+      "connect-assets" : "",
+      "less"           : "~1.3.0",
+      "bootstrap"      : "git://github.com/twitter/bootstrap.git#v2.0.4"
   },
   "devDependencies": {},
   "optionalDependencies": {},

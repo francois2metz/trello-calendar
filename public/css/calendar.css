@@ -1,32 +1,43 @@
-.filters
+body
 {
-  margin: 0 0 5px;
-  color: white;
+  margin: 4px;
 }
-.filters label
+.me
+{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.me .dropdown-menu
+{
+  right: 0;
+  left: inherit;
+}
+.filters .btn-group
 {
   display: inline-block;
-  border-radius: 4px;
-  margin: 2px;
-  padding: 3px;
-  cursor: pointer;
 }
-.filters label:not(.checked)
+.filters .dropdown-menu li label
 {
-  background-color: gray !important;
+  padding: 3px 15px;
 }
-.filters label.checked
-{
-  background-color: #990000;
-}
-.filters input
+.boards li input
 {
   display: none;
 }
-
-.links
+.filters label
 {
-  position: absolute;
-  top: 0;
-  right: 0;
+  cursor: pointer;
+}
+.filters label:hover
+{
+  background-color: #F1F1F1;
+}
+.filters .dropdown-menu li .square
+{
+  display: inline-block;
+  border: solid 1px gray;
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
 }

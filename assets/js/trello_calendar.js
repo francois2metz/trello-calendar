@@ -45,30 +45,19 @@ App.model.Prefs = Backbone.Model.extend({
  * Current User model
  */
 App.model.CurrentUser = Backbone.Model.extend({
-    sync: function(method, model, options) {
-        if (method == 'read') {
-            return Trello.get('/members/me', {}, options.success, options.error);
-        } else {
-            throw "not (yet) supported";
-        }
-    }
+    url: '/trello/members/me'
 });
 
 /**
  * Card model
  */
 App.model.Card = Backbone.Model.extend({
-    boardColor: function() {
-        return this.valueToColor(this.get('idBoard'));
+    url: function() {
+        return '/trello/cards/'+ this.id;
     },
 
-    sync: function(method, model, options) {
-        if (method == 'update') {
-            // only support update due date
-            return Trello.put('/cards/'+ model.id, {due: model.get('badges').due}, options.success, options.error);
-        } else {
-            throw "not (yet) supported";
-        }
+    boardColor: function() {
+        return this.valueToColor(this.get('idBoard'));
     }
 });
 
@@ -78,18 +67,20 @@ App.model.Card = Backbone.Model.extend({
 App.collection.Cards = Backbone.Collection.extend({
     model: App.model.Card,
 
+    url: function() {
+        return '/trello/boards/'+ this.options.board.id +'/cards';
+    },
+
     initialize: function(models, options) {
         this.options = options;
     },
 
-    sync: function(method, model, options) {
-        if (method == 'read') {
-            var filter = options.not_archived ? 'visible' : 'all';
-            return Trello.get('/boards/'+ this.options.board.id +'/cards', {badges: true,
-                                                                            filter: filter}, options.success, options.error);
-        } else {
-            throw "not (yet) supported";
-        }
+    fetch: function(options) {
+        (options = options || {});
+        var filter = options.not_archived ? 'visible' : 'all';
+        options.data = _.extend({}, options.data, {badges: true,
+                                                   filter: filter});
+        return Backbone.Collection.prototype.fetch.call(this, options);
     }
 });
 
@@ -142,12 +133,12 @@ App.model.Board = Backbone.Model.extend({
 App.collection.Boards = Backbone.Collection.extend({
     model: App.model.Board,
 
-    sync: function(method, model, options) {
-        if (method == 'read') {
-            return Trello.get('/members/my/boards', {filter: 'open'}, options.success, options.error);
-        } else {
-            throw "not (yet) supported";
-        }
+    url: '/trello/members/my/boards',
+
+    fetch: function(options) {
+        (options = options || {});
+        options.data = _.extend({}, options.data, {filter: 'open'});
+        return Backbone.Collection.prototype.fetch.call(this, options);
     }
 });
 
@@ -231,12 +222,14 @@ App.view.Cards = Backbone.View.extend({
  */
 App.view.Filter = Backbone.View.extend({
     events: {
-        "click input": "click"
+        "click": "click"
     },
 
-    tagName: 'label',
+    tagName: 'li',
 
     click: function(e) {
+        e.stopPropagation();
+
         var checked = $(e.target).is(':checked');
         this.model.set(this.options.name, checked);
         this.model.save();
@@ -245,11 +238,11 @@ App.view.Filter = Backbone.View.extend({
 
     render: function() {
         var input = this.make('input', {type: 'checkbox',
-                                        value: "onlyme",
                                         checked: this.model.get(this.options.name)});
-        this.$el.text(this.options.label)
-                .addClass((this.model.get(this.options.name) ? 'checked': ''))
-                .append(input);
+        this.$el.addClass((this.model.get(this.options.name) ? 'checked': ''));
+        var span = this.make('span', {}, this.options.label);
+        var label = $(this.make('label')).append(input).append(span);
+        this.$el.append(label);
         return this;
     }
 });
@@ -259,32 +252,46 @@ App.view.Filter = Backbone.View.extend({
  */
 App.view.Board = Backbone.View.extend({
     events: {
-        "click input": "click"
+        "click": "click"
     },
 
-    tagName: 'span',
+    tagName: 'li',
 
     initialize: function() {
         this.model.on('change:waiting', this._renderWaiting, this);
     },
 
     click: function(e) {
+        e.stopPropagation();
+
+        if (e.target != this.$('input').get(0)) return;
+
         var hidden = !$(e.target).is(':checked');
+        console.log(e, hidden);
         this.model.set({hidden: hidden});
-        this.$('label').toggleClass('checked');
+        if (hidden)
+            this.$('.square').css({'background-color': ''});
+        else
+            this.$('.square').css({'background-color': this.model.color()});
     },
 
     render: function() {
         var label = this.make('label');
         var input = this.make('input', {type: 'checkbox',
+                                        name: this.model.id,
                                         value: this.model.id,
                                         checked: !this.model.get('hidden')});
-        $(label).css({'background-color': this.model.color()})
-                .attr('title', 'Show cards from the board '+  this.model.get('name'))
-                .text(this.model.get('name'))
-                .append(input);
+        var box = this.make('span', {'class': 'square'});
+
+        var span = this.make('span', {}, this.model.get('name'));
+
+        $(label).attr('title', 'Show cards from the board '+  this.model.get('name'))
+                .append(input)
+                .append(box)
+                .append(span);
+
         if (!this.model.get('hidden') === true)
-            $(label).addClass('checked');
+            $(box).css({'background-color': this.model.color()});
         this.$el.append(label);
         this._renderWaiting();
         return this;
@@ -310,7 +317,7 @@ App.view.Boards = Backbone.View.extend({
     render: function() {
         this.collection.each(_.bind(function(board) {
             var view = new App.view.Board({model: board}).render();
-            this.$el.append(view.el);
+            this.$('.dropdown-menu').append(view.el);
         }, this));
     }
 });
@@ -340,7 +347,7 @@ App.view.Calendar = Backbone.View.extend({
     render: function() {
         this._createCalendar();
         new App.view.Boards({collection: this.boards,
-                             el: this.$('#boards').get(0)}).render();
+                             el: this.$('.filters .boards').get(0)}).render();
         new App.view.Cards({collection: this.boards,
                             el: this.$('#calendar').get(0)}).render();
         var filters = [
@@ -354,23 +361,19 @@ App.view.Calendar = Backbone.View.extend({
                                 })
         ];
         _(filters).each(_.bind(function(filter) {
-            this.$('#prefs').append(filter.render().el);
+            this.$('.options .dropdown-menu').append(filter.render().el);
         }, this));
-        var ul = this.make('ul', {'class': 'links'})
-        $(this._makeLink('#', 'Deauthorize')).appendTo(ul);
-        $(this._makeLink('/calendar/'+ Trello.token()+'.ics', 'Calendar (ics) URL')).appendTo(ul);
-        this.$el.append(ul);
+
+        this._renderCurrentUser();
         return this;
     },
 
-    _makeLink: function(href, text) {
-        return this.make('li', {}, this.make('a', {href: href}, text));
+    _renderCurrentUser: function() {
+        this.$('.me .name').text(this.currentUser.get('fullName'));
     },
 
     quit: function(e) {
         e.preventDefault();
-        Trello.deauthorize();
-        location.reload();
     },
 
     _updateBoardsVisibility: function() {
@@ -432,42 +435,13 @@ App.view.Calendar = Backbone.View.extend({
 });
 
 $(document).ready(function() {
-    var defaultOptions = {
-        scope: {
-            write: true
-        },
-        success: onAuthorize
-    };
-    /**
-     * Authentication dance
-     *  1. try to get a token from a previous session
-     *  2. if no authorized token found, ask a token
-     *  3. try to fetch the current user, in case of a revoked/expired token
-     *  4. start application
-     */
-    Trello.authorize(_.extend({}, defaultOptions, {
-        interactive: false
-    }));
-
-    if (!Trello.authorized()) {
-        return Trello.authorize(defaultOptions);
-    }
-
-    function onAuthorize() {
-        if (!Trello.authorized()) return Trello.authorize(defaultOptions);
-        var currentUser = new App.model.CurrentUser();
-        currentUser.fetch().done(function() {
-            new App.view.Calendar({
-                el: $('body').get(0),
-                currentUser: currentUser
-            }).render();
-        }).fail(function(xhr) {
-            if (xhr.status == 401) {
-                Trello.deauthorize();
-                Trello.authorize(defaultOptions);
-            } else {
-                $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
-            }
-        });
-    }
+    var currentUser = new App.model.CurrentUser();
+    currentUser.fetch().done(function() {
+        new App.view.Calendar({
+            el: $('body').get(0),
+            currentUser: currentUser
+        }).render();
+    }).fail(function(xhr) {
+        $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
+    });
 });
