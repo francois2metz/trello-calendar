@@ -10,7 +10,7 @@ Demo? Use the "hosted" version: http://trellocalendar.2metz.fr/
 
 ## Install
 
-Check that you have node.
+Check that you have node and redis.
 
     npm install
 

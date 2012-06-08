@@ -1,7 +1,3 @@
-body
-{
-  margin: 4px;
-}
 .me
 {
   position: absolute;
@@ -12,6 +8,27 @@ body
 {
   right: 0;
   left: inherit;
+}
+#calendar
+{
+  margin: 10px 4px;
+}
+.filters
+{
+  padding: 4px 4px 0;
+  box-shadow: 3px 3px 5px gray;
+}
+#ics
+{
+  display: inline-block;
+  position: relative;
+  top: -9px;
+  margin-left: 5px;
+}
+#ics input
+{
+  margin-left: 5px;
+  cursor: copy;
 }
 .filters .btn-group
 {

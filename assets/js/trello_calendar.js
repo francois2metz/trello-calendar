@@ -346,10 +346,25 @@ App.view.Calendar = Backbone.View.extend({
 
     render: function() {
         this._createCalendar();
+        this._renderBoards();
+        this._renderCards();
+        this._renderFilters();
+        this._renderCurrentUser();
+        this._renderIcsUrl();
+        return this;
+    },
+
+    _renderBoards: function() {
         new App.view.Boards({collection: this.boards,
                              el: this.$('.filters .boards').get(0)}).render();
+    },
+
+    _renderCards: function() {
         new App.view.Cards({collection: this.boards,
                             el: this.$('#calendar').get(0)}).render();
+    },
+
+    _renderFilters: function() {
         var filters = [
             new App.view.Filter({model: this.prefs,
                                  name: 'only_me',
@@ -363,13 +378,17 @@ App.view.Calendar = Backbone.View.extend({
         _(filters).each(_.bind(function(filter) {
             this.$('.options .dropdown-menu').append(filter.render().el);
         }, this));
-
-        this._renderCurrentUser();
-        return this;
     },
 
     _renderCurrentUser: function() {
         this.$('.me .name').text(this.currentUser.get('fullName'));
+    },
+
+    _renderIcsUrl: function() {
+        var uuid = this.$('#ics input').data('uuid');
+        var url = document.location.protocol +'//'+ document.location.host;
+        var path = '/calendar/'+ uuid +'/all.ics';
+        this.$('#ics input').val(url + path);
     },
 
     quit: function(e) {
