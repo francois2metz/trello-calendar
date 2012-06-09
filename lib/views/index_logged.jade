@@ -1,0 +1,34 @@
+!= js('connected')
+link(rel="stylesheet", type="text/css", href="css/calendar.css")
+link(rel="stylesheet", type="text/css", href="css/fullcalendar.css")
+link(rel="stylesheet", media="print", type="text/css", href="css/fullcalendar.print.css")
+
+
+div.filters
+  .btn-group.boards
+    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
+      | Boards
+      span.caret
+    ul.dropdown-menu
+
+  .btn-group.options
+    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
+      | Options
+      span.caret
+    ul.dropdown-menu
+
+   .form-inline#ics
+     label Ics URL
+     input(readonly, data-uuid=uuid)
+
+  .btn-group.me
+    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
+      i.icon-user
+      span.name
+      span.caret
+    ul.dropdown-menu
+      li
+        a.quit(href='#') Deauthorize
+
+div#calendar
+

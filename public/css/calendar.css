@@ -1,32 +1,60 @@
+.me
+{
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+.me .dropdown-menu
+{
+  right: 0;
+  left: inherit;
+}
+#calendar
+{
+  margin: 10px 4px;
+}
 .filters
 {
-  margin: 0 0 5px;
-  color: white;
+  padding: 4px 4px 0;
+  box-shadow: 3px 3px 5px gray;
 }
-.filters label
+#ics
 {
   display: inline-block;
-  border-radius: 4px;
-  margin: 2px;
-  padding: 3px;
-  cursor: pointer;
+  position: relative;
+  top: -9px;
+  margin-left: 5px;
 }
-.filters label:not(.checked)
+#ics input
 {
-  background-color: gray !important;
+  margin-left: 5px;
+  cursor: copy;
 }
-.filters label.checked
+.filters .btn-group
 {
-  background-color: #990000;
+  display: inline-block;
 }
-.filters input
+.filters .dropdown-menu li label
+{
+  padding: 3px 15px;
+}
+.boards li input
 {
   display: none;
 }
-
-.links
+.filters label
 {
-  position: absolute;
-  top: 0;
-  right: 0;
+  cursor: pointer;
+}
+.filters label:hover
+{
+  background-color: #F1F1F1;
+}
+.filters .dropdown-menu li .square
+{
+  display: inline-block;
+  border: solid 1px gray;
+  width: 11px;
+  height: 11px;
+  margin-right: 4px;
 }

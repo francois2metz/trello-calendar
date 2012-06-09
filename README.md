@@ -10,7 +10,7 @@ Demo? Use the "hosted" version: http://trellocalendar.2metz.fr/
 
 ## Install
 
-Check that you have node.
+Check that you have node and redis.
 
     npm install
 
@@ -20,6 +20,9 @@ Go to http://localhost:4000.
 
 ## Configuration
 
+Copy config.json.sample to config.json.
+
+Edit *config.json* and enter the key and secret from https://trello.com/1/appKey/generate.
 
 ## For old users of the HTML only page
 
