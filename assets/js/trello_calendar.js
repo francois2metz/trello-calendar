@@ -431,7 +431,7 @@ App.view.Calendar = Backbone.View.extend({
 	        center: 'title',
 	        right: 'month,agendaWeek,agendaDay'
 	    },
-            height: $(document).height() - 50,
+            height: $(document).height() - 70,
             editable: true,
             disableResizing: true,
             ignoreTimezone: false,
@@ -448,7 +448,7 @@ App.view.Calendar = Backbone.View.extend({
             }
         });
         $(window).resize(function() {
-            calendar.fullCalendar('option', 'height', $(document).height() - 50);
+            calendar.fullCalendar('option', 'height', $(document).height() - 70);
         });
     }
 });
