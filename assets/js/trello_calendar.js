@@ -393,6 +393,13 @@ App.view.Calendar = Backbone.View.extend({
 
     quit: function(e) {
         e.preventDefault();
+        $.ajax({
+            type: 'DELETE',
+            url: '/deauthorize',
+            success: function() {
+                location.reload();
+            }
+        });
     },
 
     _updateBoardsVisibility: function() {
