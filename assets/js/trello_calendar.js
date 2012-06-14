@@ -267,7 +267,6 @@ App.view.Board = Backbone.View.extend({
         if (e.target != this.$('input').get(0)) return;
 
         var hidden = !$(e.target).is(':checked');
-        console.log(e, hidden);
         this.model.set({hidden: hidden});
         if (hidden)
             this.$('.square').css({'background-color': ''});
