@@ -298,7 +298,7 @@ App.view.Board = Backbone.View.extend({
 
     _renderWaiting: function() {
         if (this.model.get('waiting')) {
-            this.$el.prepend(this.make('img', {src: 'img/spinner.gif'}));
+            this.$('label').append(this.make('img', {src: 'img/spinner.gif'}));
         } else {
             this.$('img').remove();
         }
@@ -316,7 +316,7 @@ App.view.Boards = Backbone.View.extend({
     render: function() {
         this.collection.each(_.bind(function(board) {
             var view = new App.view.Board({model: board}).render();
-            this.$('.dropdown-menu').append(view.el);
+            this.$el.append(view.el);
         }, this));
     }
 });
@@ -355,7 +355,7 @@ App.view.Calendar = Backbone.View.extend({
 
     _renderBoards: function() {
         new App.view.Boards({collection: this.boards,
-                             el: this.$('.filters .boards').get(0)}).render();
+                             el: this.$('.boards').get(0)}).render();
     },
 
     _renderCards: function() {
@@ -375,7 +375,7 @@ App.view.Calendar = Backbone.View.extend({
                                 })
         ];
         _(filters).each(_.bind(function(filter) {
-            this.$('.options .dropdown-menu').append(filter.render().el);
+            this.$('.options').append(filter.render().el);
         }, this));
     },
 
@@ -437,7 +437,7 @@ App.view.Calendar = Backbone.View.extend({
 	        center: 'title',
 	        right: 'month,agendaWeek,agendaDay'
 	    },
-            height: $(document).height() - 70,
+            height: $(document).height() - 20,
             editable: true,
             disableResizing: true,
             ignoreTimezone: false,
@@ -454,7 +454,7 @@ App.view.Calendar = Backbone.View.extend({
             }
         });
         $(window).resize(function() {
-            calendar.fullCalendar('option', 'height', $(document).height() - 70);
+            calendar.fullCalendar('option', 'height', $(document).height() - 20);
         });
     }
 });

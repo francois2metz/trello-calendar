@@ -5,30 +5,27 @@ link(rel="stylesheet", media="print", type="text/css", href="css/fullcalendar.pr
 
 
 div.filters
-  .btn-group.boards
-    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
-      | Boards
-      span.caret
-    ul.dropdown-menu
+.container-fluid
+  .row-fluid
+    .span2#sidebar
+      .btn-group.me
+        a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
+          i.icon-user
+          span.name
+          span.caret
+        ul.dropdown-menu
+          li
+            a.quit(href='#') Deauthorize
 
-  .btn-group.options
-    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
-      | Options
-      span.caret
-    ul.dropdown-menu
+      section
+        h3 Boards
+        ul.boards
 
-   .form-inline#ics
-     label Ics URL
-     input(readonly, data-uuid=uuid)
+      section
+        h3 Options
+        ul.options
 
-  .btn-group.me
-    a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
-      i.icon-user
-      span.name
-      span.caret
-    ul.dropdown-menu
-      li
-        a.quit(href='#') Deauthorize
-
-div#calendar
-
+      section#ics
+        h3 Ics URL
+        input(readonly, data-uuid=uuid)
+    .span10#calendar

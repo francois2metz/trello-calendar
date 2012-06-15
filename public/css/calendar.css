@@ -1,22 +1,6 @@
-.me
+.container-fluid
 {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-}
-.me .dropdown-menu
-{
-  right: 0;
-  left: inherit;
-}
-#calendar
-{
-  margin: 10px 4px;
-}
-.filters
-{
-  padding: 4px 4px 0;
-  box-shadow: 3px 3px 5px gray;
+  padding: 10px 4px;
 }
 #ics
 {
@@ -30,27 +14,29 @@
   margin-left: 5px;
   cursor: copy;
 }
-.filters .btn-group
+#sidebar ul, #sidebar li
 {
-  display: inline-block;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
 }
-.filters .dropdown-menu li label
+#sidebar label
 {
   padding: 3px 15px;
+}
+#sidebar label
+{
+  cursor: pointer;
+}
+#sidebar label:hover
+{
+  background-color: #F1F1F1;
 }
 .boards li input
 {
   display: none;
 }
-.filters label
-{
-  cursor: pointer;
-}
-.filters label:hover
-{
-  background-color: #F1F1F1;
-}
-.filters .dropdown-menu li .square
+.boards .square
 {
   display: inline-block;
   border: solid 1px gray;
