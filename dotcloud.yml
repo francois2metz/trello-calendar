@@ -1,5 +1,10 @@
-www:
-  type: nodejs
+nodejs:
+  type: custom
+  buildscript: nodejs/builder
+  ports:
+    www: http
+  process: node bin/trellocalendar -p 8080
   approot: .
+  node_version: v0.6.19
 data:
   type: redis
