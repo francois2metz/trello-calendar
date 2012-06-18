@@ -1,4 +1,7 @@
 {
-"key": "",
-"secret": ""
+"url": "http://localhost:4000",
+"trello": {
+  "key": "",
+  "secret": ""
+}
 }
