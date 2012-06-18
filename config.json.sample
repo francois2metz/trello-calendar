@@ -1,4 +1,6 @@
 {
-"key": "",
-"secret": ""
+"trello": {
+  "key": "",
+  "secret": ""
+}
 }

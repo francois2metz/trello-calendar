@@ -20,9 +20,21 @@ Go to http://localhost:4000.
 
 ## Configuration
 
-Copy config.json.sample to config.json.
+Copy *config.json.sample* to *config.json*.
 
 Edit *config.json* and enter the key and secret from https://trello.com/1/appKey/generate.
+
+### Redis
+
+If you have some specific redis conf, you can also add the *host*, *port* and *pass*.
+
+Add to *config.json*
+
+    "redis": {
+         "host": "",
+         "port": "",
+         "pass": ""
+    }
 
 ## For old users of the HTML only page
 
