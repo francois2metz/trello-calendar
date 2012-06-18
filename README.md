@@ -22,7 +22,18 @@ Go to http://localhost:4000.
 
 Copy *config.json.sample* to *config.json*.
 
+Edit *config.json* and add the current url. Default is *http://localhost:4000*
+
+    "url": "http://localhost:4000"
+
+### Trello
+
 Edit *config.json* and enter the key and secret from https://trello.com/1/appKey/generate.
+
+    "trello": {
+      "key": "",
+      "secret": ""
+   }
 
 ### Redis
 
