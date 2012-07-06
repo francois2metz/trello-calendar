@@ -33,7 +33,7 @@ Edit *config.json* and enter the key and secret from https://trello.com/1/appKey
     "trello": {
       "key": "",
       "secret": ""
-   }
+    }
 
 ### Redis
 
