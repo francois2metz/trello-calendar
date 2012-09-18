@@ -162,7 +162,7 @@ App.view.Card = Backbone.View.extend({
                 title: this.model.get('name'),
                 start: this.model.get('badges').due,
                 color: this.model.boardColor(),
-                url: this.model.get('url')
+                card_url: this.model.get('url')
             }, true);
         }
         return this;
@@ -442,6 +442,10 @@ App.view.Calendar = Backbone.View.extend({
             disableResizing: true,
             ignoreTimezone: false,
             timeFormat: "H'h'(mm)",
+            eventClick: function(calEvent, jsEvent, view) {
+                window.open(calEvent.card_url, "_blank");
+                return false;
+            },
             eventAfterRender: function(event, element, view) {
                 $(element).attr('title', event.backboneModel.get('desc'));
             },
