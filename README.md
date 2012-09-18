@@ -31,6 +31,11 @@ Edit *config.json* and add the current url. Default is *http://localhost:4000*
 Edit *config.json* and enter the key and secret from https://trello.com/1/appKey/generate.
 
     "trello": {
+      "token": {
+        "name": "Trello calendar",
+        "expiration": "never",
+        "scope": "read,write"
+      },
       "key": "",
       "secret": ""
     }
