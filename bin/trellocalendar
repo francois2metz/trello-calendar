@@ -2,6 +2,13 @@
 
 var argv = require('optimist').default('p', 4000).argv;
 
-require('../lib/app').listen(argv.p, function() {
+var config = JSON.parse(require('fs').readFileSync(__dirname +'/../config.json', 'utf8'));
+
+var app = require('trello_baseapp/lib/app')(config);
+var calendar = require('../lib/app')(config);
+
+app.use(calendar);
+
+app.listen(argv.p, function() {
     console.log('listening on http://localhost:'+ argv.p)
 });
