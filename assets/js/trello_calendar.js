@@ -247,6 +247,34 @@ App.view.Filter = Backbone.View.extend({
     }
 });
 
+App.view.SelectOption = Backbone.View.extend({
+    events: {
+        "change": "change"
+    },
+
+    tagName: 'li',
+
+    change: function(e) {
+        e.stopPropagation();
+
+        var value = $(e.target).val();
+        this.model.set(this.options.name, value);
+        this.model.save();
+    },
+
+    render: function() {
+        var current_value = this.model.get(this.options.name);
+        var options = _(this.options.options).map(_.bind(function(key, value) {
+            return this.make('option', {value: value, selected: value == current_value}, key);
+        }, this));
+        var select = this.make('select', {type: 'checkbox'}, options);
+        var span = this.make('span', {}, this.options.label);
+        var label = $(this.make('label')).append(select).append(span);
+        this.$el.append(label);
+        return this;
+    }
+});
+
 /**
  * Render a board filter
  */
@@ -336,7 +364,8 @@ App.view.Calendar = Backbone.View.extend({
         this.prefs = new App.model.Prefs();
         this.prefs.on('change:only_me', this._updateBoardsVisibility, this);
         this.prefs.on('change:not_archived', this._getCards, this);
-        this.prefs.fetch();
+        this.prefs.on('change:first_day_of_week', this._updateFirstDayOfWeek, this);
+        this.prefs.fetch({silent: true});
 
         this.boards.on('reset', this._getCards, this);
         this.boards.on('change:hidden', this._updateBoardVisibility, this);
@@ -372,7 +401,20 @@ App.view.Calendar = Backbone.View.extend({
             new App.view.Filter({model: this.prefs,
                                  name: 'not_archived',
                                  label: "Show only cards not archived"
-                                })
+                                }),
+            new App.view.SelectOption({model: this.prefs,
+                                       name: 'first_day_of_week',
+                                       options: {
+                                           0: "Sunday",
+                                           1: "Monday",
+                                           2: "Tuesday",
+                                           3: "Wednesday",
+                                           4: "Thursday",
+                                           5: "Friday",
+                                           6: "Saturday"
+                                       },
+                                       label: "First day of the week"
+                                      })
         ];
         _(filters).each(_.bind(function(filter) {
             this.$('.options').append(filter.render().el);
@@ -430,6 +472,25 @@ App.view.Calendar = Backbone.View.extend({
         }, this));
     },
 
+    _updateFirstDayOfWeek: function() {
+        // full calendar doesn't allow to update dynamically the first of the
+        // week. So we destroy the calendar and rerender it.
+        this._destroyAndReRender();
+    },
+
+    _getFirstDayOfTheWeek: function() {
+        return this.prefs.get('first_day_of_week');
+    },
+
+    /**
+     * Apocalypse!
+     */
+    _destroyAndReRender: function() {
+        this.$('#calendar').fullCalendar('destroy');
+        this._createCalendar();
+        this._renderCards();
+    },
+
     _createCalendar: function() {
         var calendar = this.$('#calendar').fullCalendar({
             header: {
@@ -441,6 +502,7 @@ App.view.Calendar = Backbone.View.extend({
             editable: true,
             disableResizing: true,
             ignoreTimezone: false,
+            firstDay: this._getFirstDayOfTheWeek(),
             timeFormat: "H'h'(mm)",
             eventClick: function(calEvent, jsEvent, view) {
                 window.open(calEvent.card_url, "_blank");
