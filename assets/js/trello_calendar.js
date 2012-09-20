@@ -228,7 +228,7 @@ App.view.Cards = Backbone.View.extend({
  */
 App.view.Filter = Backbone.View.extend({
     events: {
-        "click": "click"
+        "click input": "click"
     },
 
     tagName: 'li',
@@ -364,10 +364,10 @@ App.view.Calendar = Backbone.View.extend({
         this.currentUser = this.options.currentUser;
 
         this.prefs = new App.model.Prefs({}, {key: 'prefs'});
+        this.prefs.fetch();
         this.prefs.on('change:only_me', this._updateBoardsVisibility, this);
         this.prefs.on('change:not_archived', this._getCards, this);
         this.prefs.on('change:first_day_of_week', this._updateFirstDayOfWeek, this);
-        this.prefs.fetch({silent: true});
 
         this.boards.on('reset', this._getCards, this);
         this.boards.on('change:hidden', this._updateBoardVisibility, this);
