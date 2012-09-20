@@ -523,25 +523,34 @@ App.view.Feed = Backbone.View.extend({
     },
 
     _renderOptions: function() {
-        var alarm = new App.view.SelectOption({
-            model: this.prefs,
-            name: 'alarm',
-            options: {
-                "-1": "No alarm",
-                "PT0s": "0 minute before",
-                "-PT5M": "5 minutes before",
-                "-PT15M": "15 minutes before",
-                "-PT30M": "30 minutes before",
-                "-PT60M": "1 hour before",
-                "-PT1D": "1 day before"
-            },
-            label: "Set the alarm"
-        }).render();
-        this.$('.options').append(alarm.el);
+        var options = [
+            new App.view.Filter({
+                model: this.prefs,
+                name: 'only_me',
+                label: "Show only cards assigned to me"
+            }),
+            new App.view.SelectOption({
+                model: this.prefs,
+                name: 'alarm',
+                options: {
+                    "-1": "No reminder",
+                    "PT0s": "0 minute before",
+                    "-PT5M": "5 minutes before",
+                    "-PT15M": "15 minutes before",
+                    "-PT30M": "30 minutes before",
+                    "-PT60M": "1 hour before",
+                    "-PT1D": "1 day before"
+                },
+                label: "Reminder"
+            })
+        ];
+        _(options).each(_.bind(function(option) {
+            this.$('.options').append(option.render().el);
+        }, this));
     },
 
     _renderIcsUrl: function() {
-        var uuid = this.$('input').data('uuid');
+        var uuid = this.$('#ics').data('uuid');
         var url = document.location.protocol +'//'+ document.location.host;
         var path = '/calendar/'+ uuid +'/all.ics?'+ $.param(this.prefs.toJSON());
         this.$('input').val(url + path);

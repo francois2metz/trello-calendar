@@ -41,10 +41,10 @@ ul.nav.nav-pills.nav-stacked#switch
       section
         h2 ICS feed
         p You are about to subscribe to cards with due date from all of you existing boards and new ones you'll add in the future.
-        p You can set a default alarm. Check on the left.
+        p You can set a default reminder. Check on the left.
         .row-fluid
           .span9
-            input(type="text", readonly, data-uuid=uuid)
+            input#ics(type="text", readonly, data-uuid=uuid)
         p
          | Copy paste the previous URL into 
          a(href="http://support.google.com/calendar/bin/answer.py?hl=en&answer=37100", target="_blank") Google Calendar
