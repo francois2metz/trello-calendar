@@ -507,6 +507,10 @@ App.view.Calendar = Backbone.View.extend({
  * Feed view
  */
 App.view.Feed = Backbone.View.extend({
+    events: {
+        "click input": "selectAll"
+    },
+
     initialize: function() {
         this.prefs = new App.model.Prefs({}, {key: 'feed_prefs'});
         this.prefs.fetch();
@@ -541,6 +545,10 @@ App.view.Feed = Backbone.View.extend({
         var url = document.location.protocol +'//'+ document.location.host;
         var path = '/calendar/'+ uuid +'/all.ics?'+ $.param(this.prefs.toJSON());
         this.$('input').val(url + path);
+    },
+
+    selectAll: function(e) {
+        e.target.select();
     }
 });
 

@@ -15,7 +15,7 @@ ul.nav.nav-pills.nav-stacked#switch
   li.calendar
     a(href="#") Calendar
   li.feed
-    a(href="#/feed") Feed
+    a(href="#/feed") ICS Feed
 
 .container-fluid#calendar
   .row-fluid
@@ -39,12 +39,13 @@ ul.nav.nav-pills.nav-stacked#switch
 
     .span10.content
       section
-        h2 ICS feeds
-        p
-         | Copy paste the URL into 
-         a(href="http://support.google.com/calendar/bin/answer.py?hl=en&answer=37100", target="_blank") google calendar
-         |  or your very own calendar app.
-        h3 All boards
+        h2 ICS feed
+        p You are about to subscribe to cards with due date from all of you existing boards and new ones you'll add in the future.
+        p You can set a default alarm. Check on the left.
         .row-fluid
           .span9
-            input(readonly, data-uuid=uuid)
+            input(type="text", readonly, data-uuid=uuid)
+        p
+         | Copy paste the previous URL into 
+         a(href="http://support.google.com/calendar/bin/answer.py?hl=en&answer=37100", target="_blank") Google Calendar
+         |  or your very own calendar app.
