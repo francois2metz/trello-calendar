@@ -3,20 +3,15 @@
 != css('fullcalendar')
 link(rel="stylesheet", media="print", type="text/css", href="css/fullcalendar.print.css")
 
+ul.nav.nav-pills#switch
+  li.calendar
+    a(href="#") Calendar
+  li.feed
+    a(href="#/feed") Feed
 
-div.filters
-.container-fluid
+.container-fluid#calendar
   .row-fluid
-    .span2#sidebar
-      .btn-group.me
-        a.btn.dropdown-toggle(data-toggle="dropdown", href="#")
-          i.icon-user
-          span.name
-          span.caret
-        ul.dropdown-menu
-          li
-            a.quit(href='#') Deauthorize
-
+    .span2.sidebar
       section
         h3 Boards
         ul.boards
@@ -25,11 +20,23 @@ div.filters
         h3 Options
         ul.options
 
-      section#ics
-        h3 Ics URL
+    .span10.content
+
+.container-fluid#feed
+  .row-fluid
+    .span2.sidebar
+      section
+        h3 Options
+        ul.options
+
+    .span10.content
+      section
+        h2 ICS feeds
         p
-         | Copy paste this URL into 
+         | Copy paste the URL into 
          a(href="http://support.google.com/calendar/bin/answer.py?hl=en&answer=37100", target="_blank") google calendar
          |  or your very own calendar app.
-        input(readonly, data-uuid=uuid)
-    .span10#calendar
+        h3 All boards
+        .row-fluid
+          .span9
+            input(readonly, data-uuid=uuid)

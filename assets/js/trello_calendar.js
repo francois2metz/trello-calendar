@@ -2,6 +2,7 @@ var App = {
     model: {},
     collection: {},
     view: {},
+    router: {}
 };
 
 /**
@@ -23,12 +24,17 @@ App.model.Prefs = Backbone.Model.extend({
         not_archived: false
     },
 
+    initialize: function(attrs, options) {
+        this.options = options;
+    },
+
     sync: function(method, model, options) {
         if (!window.localStorage) return;
+        var item_name = this.options.key;
         if (method == 'create' || method == 'update') {
-            localStorage.setItem('prefs', JSON.stringify(model.toJSON()));
+            localStorage.setItem(item_name, JSON.stringify(model.toJSON()));
         } else if (method == 'read') {
-            var prefs = localStorage.getItem('prefs');
+            var prefs = localStorage.getItem(item_name);
             if (prefs) {
                 try {
                     prefs = JSON.parse(prefs);
@@ -350,7 +356,7 @@ App.view.Boards = Backbone.View.extend({
 });
 
 /**
- * Main view
+ * Calendar view
  */
 App.view.Calendar = Backbone.View.extend({
     events: {
@@ -361,7 +367,7 @@ App.view.Calendar = Backbone.View.extend({
         this.boards = new App.collection.Boards();
         this.currentUser = this.options.currentUser;
 
-        this.prefs = new App.model.Prefs();
+        this.prefs = new App.model.Prefs({}, {key: 'prefs'});
         this.prefs.on('change:only_me', this._updateBoardsVisibility, this);
         this.prefs.on('change:not_archived', this._getCards, this);
         this.prefs.on('change:first_day_of_week', this._updateFirstDayOfWeek, this);
@@ -378,7 +384,6 @@ App.view.Calendar = Backbone.View.extend({
         this._renderCards();
         this._renderFilters();
         this._renderCurrentUser();
-        this._renderIcsUrl();
         return this;
     },
 
@@ -389,7 +394,7 @@ App.view.Calendar = Backbone.View.extend({
 
     _renderCards: function() {
         new App.view.Cards({collection: this.boards,
-                            el: this.$('#calendar').get(0)}).render();
+                            el: this.$('.content').get(0)}).render();
     },
 
     _renderFilters: function() {
@@ -423,13 +428,6 @@ App.view.Calendar = Backbone.View.extend({
 
     _renderCurrentUser: function() {
         this.$('.me .name').text(this.currentUser.get('fullName'));
-    },
-
-    _renderIcsUrl: function() {
-        var uuid = this.$('#ics input').data('uuid');
-        var url = document.location.protocol +'//'+ document.location.host;
-        var path = '/calendar/'+ uuid +'/all.ics';
-        this.$('#ics input').val(url + path);
     },
 
     quit: function(e) {
@@ -486,13 +484,13 @@ App.view.Calendar = Backbone.View.extend({
      * Apocalypse!
      */
     _destroyAndReRender: function() {
-        this.$('#calendar').fullCalendar('destroy');
+        this.$('.content').fullCalendar('destroy');
         this._createCalendar();
         this._renderCards();
     },
 
     _createCalendar: function() {
-        var calendar = this.$('#calendar').fullCalendar({
+        var calendar = this.$('.content').fullCalendar({
             header: {
 	        left: 'prev,next today',
 	        center: 'title',
@@ -525,14 +523,94 @@ App.view.Calendar = Backbone.View.extend({
     }
 });
 
-$(document).ready(function() {
-    var currentUser = new App.model.CurrentUser();
-    currentUser.fetch().done(function() {
-        new App.view.Calendar({
-            el: $('body').get(0),
-            currentUser: currentUser
+/**
+ * Feed view
+ */
+App.view.Feed = Backbone.View.extend({
+    initialize: function() {
+        this.prefs = new App.model.Prefs({}, {key: 'feed_prefs'});
+        this.prefs.fetch();
+    },
+
+    render: function() {
+        this._renderOptions();
+        this._renderIcsUrl();
+        this.prefs.on('change', this._renderIcsUrl, this);
+    },
+
+    _renderOptions: function() {
+        var alarm = new App.view.SelectOption({
+            model: this.prefs,
+            name: 'alarm',
+            options: {
+                "-1": "No alarm",
+                "PT0s": "0 minute before",
+                "-PT5M": "5 minutes before",
+                "-PT15M": "15 minutes before",
+                "-PT30M": "30 minutes before",
+                "-PT60M": "1 hour before",
+                "-PT1D": "1 day before"
+            },
+            label: "Set the alarm"
         }).render();
-    }).fail(function(xhr) {
-        $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
-    });
+        this.$('.options').append(alarm.el);
+    },
+
+    _renderIcsUrl: function() {
+        var uuid = this.$('input').data('uuid');
+        var url = document.location.protocol +'//'+ document.location.host;
+        var path = '/calendar/'+ uuid +'/all.ics?'+ $.param(this.prefs.toJSON());
+        this.$('input').val(url + path);
+    }
 });
+
+App.router.TrelloRouter = Backbone.Router.extend({
+    routes: {
+        ""      : "calendar",
+        "/feed" : "feed"
+    },
+
+    initialize: function(options) {
+        this.currentUser = options.currentUser;
+    },
+
+    render: function() {
+        this.calendar =  new App.view.Calendar({
+            el: $('#calendar').get(0),
+            currentUser: this.currentUser
+        }).render();
+        this.feed = new App.view.Feed({
+            el: $('#feed').get(0),
+            currentUser: this.currentUser
+        }).render();
+    },
+
+    calendar: function() {
+        this._showPane('calendar');
+    },
+
+    feed: function() {
+        this._showPane('feed');
+    },
+
+    _showPane: function(pane) {
+        $('#switch .active').removeClass('active');
+        $('#switch .'+pane).addClass('active');
+        $('#'+ pane).show();
+        _(['calendar', 'feed']).chain().without(pane).each(function(pane) {
+            $('#'+ pane).hide();
+        });
+    }
+});
+(function() {
+    var currentUser = new App.model.CurrentUser();
+    var router = new App.router.TrelloRouter({currentUser: currentUser});
+    $(document).ready(function() {
+        currentUser.fetch().done(function() {
+            router.render();
+            Backbone.history.start();
+        }).fail(function(xhr) {
+            $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
+        });
+    });
+})();
