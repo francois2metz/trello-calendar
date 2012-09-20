@@ -394,27 +394,30 @@ App.view.Calendar = Backbone.View.extend({
 
     _renderFilters: function() {
         var filters = [
-            new App.view.Filter({model: this.prefs,
-                                 name: 'only_me',
-                                 label: "Show only cards assigned to me"
-                                }),
-            new App.view.Filter({model: this.prefs,
-                                 name: 'not_archived',
-                                 label: "Show only cards not archived"
-                                }),
-            new App.view.SelectOption({model: this.prefs,
-                                       name: 'first_day_of_week',
-                                       options: {
-                                           0: "Sunday",
-                                           1: "Monday",
-                                           2: "Tuesday",
-                                           3: "Wednesday",
-                                           4: "Thursday",
-                                           5: "Friday",
-                                           6: "Saturday"
-                                       },
-                                       label: "First day of the week"
-                                      })
+            new App.view.Filter({
+                model: this.prefs,
+                name: 'only_me',
+                label: "Show only cards assigned to me"
+            }),
+            new App.view.Filter({
+                model: this.prefs,
+                name: 'not_archived',
+                label: "Show only cards not archived"
+            }),
+            new App.view.SelectOption({
+                model: this.prefs,
+                name: 'first_day_of_week',
+                options: {
+                    0: "Sunday",
+                    1: "Monday",
+                    2: "Tuesday",
+                    3: "Wednesday",
+                    4: "Thursday",
+                    5: "Friday",
+                    6: "Saturday"
+                },
+                label: "First day of the week"
+            })
         ];
         _(filters).each(_.bind(function(filter) {
             this.$('.options').append(filter.render().el);
