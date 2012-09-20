@@ -1,40 +1,63 @@
-.container-fluid
-  .hero-unit
-    h1 Trello calendar
-    p You trello cards with a due date, on a web-calendar or your own calendar app.
+.container
+  .page-header
+    h1
+      | Trello calendar
+      small  View all your cards with a due date.
+
+  .text-center.tagline
+    p.lead Never miss a deadline of one of your boards!
     p
       a.btn.btn-large.btn-primary(href='/login') Login with Trello
 
-  section.row-fluid
-    .span4
-      h2 Features
-      ul
-        li Show cards from your trello boards with a due date
-        li Filter cards by boards
-        li Show only cards assigned to you
-        li Hide archived cards
-        li Update due date by drag'n drop
-    .span4
-      h2 ICS feed
-      p
-        | The ICS feed allows you to show your cards on Google calendar or Thunderbird Lightning for example.
-      ul
-        li Set optional default reminder
-        li Show only cards assigned to you
-    .span4
-      h2 Security
-      if https
-        p All data are transmitted over HTTPS.
-      p No data are stored on our server.
-      p We ask for both read and write permissions. The write permission is to be able to update due date on cards.
+  .features
+    section.row-fluid
+      .span6
+        h1 Web calendar
+        p Web calendar with a month/week/day view.
+        ul
+          li Filter cards by boards
+          li Show only cards assigned to you
+          li Hide archived cards
+          li Update due date by drag'n drop
+      .span6
+        img.img-polaroid(src="/img/calendar.png")
 
-  footer
-    p This service is not affilied with 
+    section.row-fluid
+      .span6
+        img.img-polaroid(src="/img/ics.jpg")
+
+      .span6
+        h1 ICS feed
+        p The ICS feed allows you to show your cards on Google calendar or Thunderbird Lightning for example.
+        ul
+          li Set optional default reminder
+          li Show only cards assigned to you
+
+    section.row-fluid
+      .span6
+        h2 Security
+        if https
+          p All data are transmitted over HTTPS.
+        p No cards are stored on our server.
+        p We ask for both read and write permissions. The write permission is to be able to update due date on cards.
+      .span6
+        h2 Feedbacks
+        p
+          | You can provide feedbacks on the 
+          a(href='https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0') trello board
+          .
+
+  .text-center.tagline
+    p
+      a.btn.btn-large.btn-primary(href='/login') Login with Trello
+
+  footer.text-center
+    p This service is not affilied with
       a(href="https://trello.com") trello
       .
     p
       | © 2012 François de Metz
       br
-      | This website is a free software. Fork 
+      | This website is a free software. Fork
       a(href="https://github.com/francois2metz/trello-calendar") trello-calendar
       |  on github.
