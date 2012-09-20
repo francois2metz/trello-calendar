@@ -3,7 +3,15 @@
 != css('fullcalendar')
 link(rel="stylesheet", media="print", type="text/css", href="css/fullcalendar.print.css")
 
-ul.nav.nav-pills#switch
+ul.nav.nav-pills.nav-stacked#switch
+  li.dropdown#me
+    a.dropdown-toggle(data-toggle="dropdown", href="#")
+      i.icon-user
+      span.name
+      span.caret
+    ul.dropdown-menu
+      li
+        a.quit(href='#') Deauthorize trello calendar
   li.calendar
     a(href="#") Calendar
   li.feed

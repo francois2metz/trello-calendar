@@ -359,10 +359,6 @@ App.view.Boards = Backbone.View.extend({
  * Calendar view
  */
 App.view.Calendar = Backbone.View.extend({
-    events: {
-        'click .quit': 'quit'
-    },
-
     initialize: function() {
         this.boards = new App.collection.Boards();
         this.currentUser = this.options.currentUser;
@@ -383,7 +379,6 @@ App.view.Calendar = Backbone.View.extend({
         this._renderBoards();
         this._renderCards();
         this._renderFilters();
-        this._renderCurrentUser();
         return this;
     },
 
@@ -424,21 +419,6 @@ App.view.Calendar = Backbone.View.extend({
         _(filters).each(_.bind(function(filter) {
             this.$('.options').append(filter.render().el);
         }, this));
-    },
-
-    _renderCurrentUser: function() {
-        this.$('.me .name').text(this.currentUser.get('fullName'));
-    },
-
-    quit: function(e) {
-        e.preventDefault();
-        $.ajax({
-            type: 'DELETE',
-            url: '/deauthorize',
-            success: function() {
-                location.reload();
-            }
-        });
     },
 
     _updateBoardsVisibility: function() {
@@ -564,6 +544,28 @@ App.view.Feed = Backbone.View.extend({
     }
 });
 
+App.view.CurrentUser = Backbone.View.extend({
+    events: {
+        'click .quit': 'quit'
+    },
+
+    quit: function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'DELETE',
+            url: '/deauthorize',
+            success: function() {
+                location.reload();
+            }
+        });
+    },
+
+    render: function() {
+        this.$('.name').text(this.model.get('fullName'));
+        return this;
+    }
+});
+
 App.router.TrelloRouter = Backbone.Router.extend({
     routes: {
         ""      : "calendar",
@@ -582,6 +584,10 @@ App.router.TrelloRouter = Backbone.Router.extend({
         this.feed = new App.view.Feed({
             el: $('#feed').get(0),
             currentUser: this.currentUser
+        }).render();
+        new App.view.CurrentUser({
+            el: $('#me').get(0),
+            model: this.currentUser
         }).render();
     },
 
