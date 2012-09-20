@@ -1,54 +1,58 @@
+#switch
+{
+   position: absolute;
+   padding: 3px;
+}
 .container-fluid
 {
   padding: 10px 4px;
+
+  .sidebar
+  {
+    margin-top: 100px;
+  }
 }
-#ics
+#feed
 {
-  display: inline-block;
-  position: relative;
-  top: -9px;
-  margin-left: 5px;
+  input
+  {
+    cursor: copy;
+    width: 100%;
+  }
 }
-#ics input
-{
-  margin-left: 5px;
-  cursor: copy;
+.sidebar {
+  ul, li
+  {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  label
+  {
+    padding: 3px 15px;
+    cursor: pointer;
+  }
+  label:hover
+  {
+    background-color: #F1F1F1;
+  }
+  select
+  {
+    width: inherit;
+  }
 }
-#sidebar ul, #sidebar li
+.boards
 {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-#sidebar label
-{
-  padding: 3px 15px;
-}
-#sidebar label
-{
-  cursor: pointer;
-}
-#sidebar label:hover
-{
-  background-color: #F1F1F1;
-}
-.boards li input
-{
-  display: none;
-}
-.boards .square
-{
-  display: inline-block;
-  border: solid 1px gray;
-  width: 11px;
-  height: 11px;
-  margin-right: 4px;
-}
-.options select
-{
-  width: inherit;
-}
-#ics input
-{
-  width: inherit;
+  li input
+  {
+    display: none;
+  }
+  .square
+  {
+    display: inline-block;
+    border: solid 1px gray;
+    width: 11px;
+    height: 11px;
+    margin-right: 4px;
+  }
 }
