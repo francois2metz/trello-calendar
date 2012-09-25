@@ -402,7 +402,7 @@ App.view.Calendar = Backbone.View.extend({
             new App.view.Filter({
                 model: this.prefs,
                 name: 'not_archived',
-                label: "Show only cards not archived"
+                label: "Hide archived cards"
             }),
             new App.view.SelectOption({
                 model: this.prefs,
