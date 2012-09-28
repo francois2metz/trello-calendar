@@ -3,5 +3,8 @@
 "trello": {
   "key": "",
   "secret": ""
+},
+"analytics": {
+    "ga": ""
 }
 }
