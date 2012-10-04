@@ -51,6 +51,10 @@ Add to *config.json*
 
 The HTML/JS only page is no more available. If node is node your cup of tea, you can use the tag html-only.
 
+## Disclaimer
+
+Trello is a registered trademark of Fog Creek Software, Inc. This service is not affiliated with Fog Creek Software, Inc.
+
 ## License
 
 (c) 2012 François de Metz
