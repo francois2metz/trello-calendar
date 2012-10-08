@@ -6,7 +6,7 @@ It provides both HTML calendar and ics feeds.
 
 If you have any features suggestion, post on the trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
 
-Demo? Use the "hosted" version: https://trellocalendar-francois2metz.dotcloud.com/
+**The hosted version:** https://trellocalendar-francois2metz.dotcloud.com/
 
 ## Install
 
