@@ -6,7 +6,7 @@ It provides both HTML calendar and ics feeds.
 
 If you have any features suggestion, post on the trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
 
-Demo? Use the "hosted" version: https://trellocalendar-francois2metz.dotcloud.com/
+**The hosted version:** https://trellocalendar-francois2metz.dotcloud.com/
 
 ## Install
 
@@ -50,6 +50,10 @@ Add to *config.json*
 ## For old users of the HTML only page
 
 The HTML/JS only page is no more available. If node is node your cup of tea, you can use the tag html-only.
+
+## Disclaimer
+
+Trello is a registered trademark of Fog Creek Software, Inc. This service is not affiliated with Fog Creek Software, Inc.
 
 ## License
 
