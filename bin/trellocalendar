@@ -9,6 +9,21 @@ var calendar = require('../lib/app')(config);
 
 app.use(calendar);
 
+if (config.analytics.dattss) {
+    var stats = require('dattss').process({ name: 'trello-calendar',
+                                            auth: config.analytics.dattss});
+    var agg = function(eventName) {
+        var e = eventName.replace(/([a-z\d])([A-Z]+)/g, '$1_$2').replace(/[-\s]+/g, '_').toLowerCase();
+        stats.agg(e, '1c');
+    };
+
+    ['loginStart', 'loginEnd', 'deauthorize', 'rootLogged', 'rootUnlogged',
+     'calendar', 'trelloApiGet', 'trelloApiPut'].forEach(function(eventName) {
+         app.on(eventName, function() { agg(eventName); });
+         calendar.on(eventName, function() { agg(eventName); });
+    });
+}
+
 app.listen(argv.p, function() {
     console.log('listening on http://localhost:'+ argv.p)
 });
