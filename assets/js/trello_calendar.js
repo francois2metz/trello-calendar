@@ -112,6 +112,10 @@ App.model.Board = Backbone.Model.extend({
         return this.valueToColor(this.id);
     },
 
+    slug: function() {
+        return this.get('url').split('/')[4];
+    },
+
     _initFromLocalStorage: function() {
         var value = this._getValue("false");
         this.set({hidden: (value === "true")});
@@ -360,7 +364,7 @@ App.view.Boards = Backbone.View.extend({
  */
 App.view.Calendar = Backbone.View.extend({
     initialize: function() {
-        this.boards = new App.collection.Boards();
+        this.boards = this.collection;
         this.currentUser = this.options.currentUser;
 
         this.prefs = new App.model.Prefs({}, {key: 'prefs'});
@@ -371,7 +375,10 @@ App.view.Calendar = Backbone.View.extend({
 
         this.boards.on('reset', this._getCards, this);
         this.boards.on('change:hidden', this._updateBoardVisibility, this);
-        this.boards.fetch();
+
+        this.on('show', function() {
+            this.$('.content').fullCalendar('rerenderEvents');
+        }, this);
     },
 
     render: function() {
@@ -517,15 +524,18 @@ App.view.Feed = Backbone.View.extend({
     initialize: function() {
         this.prefs = new App.model.Prefs({}, {key: 'feed_prefs'});
         this.prefs.fetch();
+        this.collection.on('reset', this._renderBoards, this);
+        this.prefs.on('change', this.render, this);
     },
 
     render: function() {
         this._renderOptions();
         this._renderIcsUrl();
-        this.prefs.on('change', this._renderIcsUrl, this);
+        this._renderBoards()
     },
 
     _renderOptions: function() {
+        this.$('.options').empty();
         var options = [
             new App.view.Filter({
                 model: this.prefs,
@@ -553,10 +563,27 @@ App.view.Feed = Backbone.View.extend({
     },
 
     _renderIcsUrl: function() {
+        this.$('input').val(this._formatIcsUrl('all'));
+    },
+
+    _formatIcsUrl: function(type) {
         var uuid = this.$('#ics').data('uuid');
         var url = document.location.protocol +'//'+ document.location.host;
-        var path = '/calendar/'+ uuid +'/all.ics?'+ $.param(this.prefs.toJSON());
-        this.$('input').val(url + path);
+        var path = '/calendar/'+ uuid +'/'+ type +'.ics?'+ $.param(this.prefs.toJSON());
+        return url + path;
+    },
+
+    _renderBoards: function() {
+        this.$('.boards').empty();
+        this.collection.each(_.bind(this._renderBoard, this));
+    },
+
+    _renderBoard: function(board) {
+        var input = this.make('input', {'class': 'span9', type: 'text',
+                                        readonly: 'readonly', value: this._formatIcsUrl('board/'+board.id+'/'+ board.slug())});
+        var title = this.make('strong', {'class': 'span3'}, board.get('name'));
+        var div = this.make('div', {'class': 'row-fluid'});
+        this.$('.boards').append($(div).append(title).append(input));
     },
 
     selectAll: function(e) {
@@ -594,15 +621,19 @@ App.router.TrelloRouter = Backbone.Router.extend({
 
     initialize: function(options) {
         this.currentUser = options.currentUser;
+        this.boards = new App.collection.Boards();
+        this.boards.fetch();
     },
 
     render: function() {
         this.calendar =  new App.view.Calendar({
             el: $('#calendar').get(0),
+            collection: this.boards,
             currentUser: this.currentUser
         }).render();
         this.feed = new App.view.Feed({
             el: $('#feed').get(0),
+            collection: this.boards,
             currentUser: this.currentUser
         }).render();
         new App.view.CurrentUser({
@@ -626,6 +657,7 @@ App.router.TrelloRouter = Backbone.Router.extend({
         _(['calendar', 'feed']).chain().without(pane).each(function(pane) {
             $('#'+ pane).hide();
         });
+        this[pane].trigger('show');
     }
 });
 (function() {

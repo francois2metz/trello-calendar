@@ -21,7 +21,7 @@ if (config.analytics.dattss) {
     };
 
     ['loginStart', 'loginEnd', 'deauthorize', 'rootLogged', 'rootUnlogged',
-     'calendar', 'trelloApiGet', 'trelloApiPut'].forEach(function(eventName) {
+     'calendar', 'calendarAll', 'calendarBoard', 'trelloApiGet', 'trelloApiPut'].forEach(function(eventName) {
          app.on(eventName, function() { agg(eventName); });
          calendar.on(eventName, function() { agg(eventName); });
     });
