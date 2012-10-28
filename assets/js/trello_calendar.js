@@ -112,6 +112,10 @@ App.model.Board = Backbone.Model.extend({
         return this.valueToColor(this.id);
     },
 
+    slug: function() {
+        return this.get('url').split('/')[4];
+    },
+
     _initFromLocalStorage: function() {
         var value = this._getValue("false");
         this.set({hidden: (value === "true")});
@@ -575,7 +579,8 @@ App.view.Feed = Backbone.View.extend({
     },
 
     _renderBoard: function(board) {
-        var input = this.make('input', {'class': 'span9', type: 'text', readonly: 'readonly', value:this._formatIcsUrl(board.id)});
+        var input = this.make('input', {'class': 'span9', type: 'text',
+                                        readonly: 'readonly', value: this._formatIcsUrl('board/'+board.id+'/'+ board.slug())});
         var title = this.make('strong', {'class': 'span3'}, board.get('name'));
         var div = this.make('div', {'class': 'row-fluid'});
         this.$('.boards').append($(div).append(title).append(input));
