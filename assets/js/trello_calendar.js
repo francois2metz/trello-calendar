@@ -371,6 +371,10 @@ App.view.Calendar = Backbone.View.extend({
 
         this.boards.on('reset', this._getCards, this);
         this.boards.on('change:hidden', this._updateBoardVisibility, this);
+
+        this.on('show', function() {
+            this.$('.content').fullCalendar('rerenderEvents');
+        }, this);
     },
 
     render: function() {
@@ -648,6 +652,7 @@ App.router.TrelloRouter = Backbone.Router.extend({
         _(['calendar', 'feed']).chain().without(pane).each(function(pane) {
             $('#'+ pane).hide();
         });
+        this[pane].trigger('show');
     }
 });
 (function() {
