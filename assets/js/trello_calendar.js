@@ -531,7 +531,8 @@ App.view.Feed = Backbone.View.extend({
     render: function() {
         this._renderOptions();
         this._renderIcsUrl();
-        this._renderBoards()
+        this._renderBoards();
+        return this;
     },
 
     _renderOptions: function() {
