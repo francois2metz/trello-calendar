@@ -622,10 +622,6 @@ App.router.TrelloRouter = Backbone.Router.extend({
     initialize: function(options) {
         this.currentUser = options.currentUser;
         this.boards = new App.collection.Boards();
-        this.boards.fetch();
-    },
-
-    render: function() {
         this.calendar =  new App.view.Calendar({
             el: $('#calendar').get(0),
             collection: this.boards,
@@ -640,6 +636,7 @@ App.router.TrelloRouter = Backbone.Router.extend({
             el: $('#me').get(0),
             model: this.currentUser
         }).render();
+        this.boards.fetch();
     },
 
     calendar: function() {
@@ -662,13 +659,12 @@ App.router.TrelloRouter = Backbone.Router.extend({
 });
 (function() {
     var currentUser = new App.model.CurrentUser();
-    var router = new App.router.TrelloRouter({currentUser: currentUser});
-    $(document).ready(function() {
-        currentUser.fetch().done(function() {
-            router.render();
+    currentUser.fetch().done(function() {
+        $(document).ready(function() {
+            new App.router.TrelloRouter({currentUser: currentUser});
             Backbone.history.start();
-        }).fail(function(xhr) {
-            $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
         });
-    });
+    }).fail(function(xhr) {
+        $('<p>').text('Trello error: try to reload the page').appendTo($('body'));
+    });;
 })();
