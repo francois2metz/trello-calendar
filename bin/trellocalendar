@@ -20,7 +20,7 @@ if (config.analytics.dattss) {
         stats.agg(e, '1c');
     };
 
-    ['loginStart', 'loginEnd', 'deauthorize', 'rootLogged', 'rootUnlogged',
+    ['error', 'loginStart', 'loginEnd', 'deauthorize', 'rootLogged', 'rootUnlogged',
      'calendar', 'calendarAll', 'calendarBoard', 'trelloApiGet', 'trelloApiPut'].forEach(function(eventName) {
          app.on(eventName, function() { agg(eventName); });
          calendar.on(eventName, function() { agg(eventName); });
