@@ -2,7 +2,7 @@
 "url": "http://localhost:4000",
 "trello": {
   "token": {
-    "name": "Trello calendar",
+    "name": "Calendar for Trello",
     "expiration": "never",
     "scope": "read,write"
   },

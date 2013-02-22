@@ -1,10 +1,10 @@
-# Trello calendar
+# Calendar for Trello
 
 A calendar with all cards shown by due date.
 
 It provides both HTML calendar and ics feeds.
 
-If you have any features suggestion, post on the trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
+If you have any features suggestion, post on the Trello board: https://trello.com/board/trello-calendar/4f0d53d03ca0f7f83f03cad0.
 
 **The hosted version:** https://trellocalendar-francois2metz.dotcloud.com/
 
@@ -32,7 +32,7 @@ Edit *config.json* and enter the key and secret from https://trello.com/1/appKey
 
     "trello": {
       "token": {
-        "name": "Trello calendar",
+        "name": "Calendar for Trello",
         "expiration": "never",
         "scope": "read,write"
       },
