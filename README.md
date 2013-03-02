@@ -54,7 +54,7 @@ Add to *config.json*
 
 ## For old users of the HTML only page
 
-The HTML/JS only page is no more available. If node is node your cup of tea, you can use the tag html-only.
+The HTML/JS only page is no more available. If node is not your cup of tea, you can use the tag html-only.
 
 ## Disclaimer
 
