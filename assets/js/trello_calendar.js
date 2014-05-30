@@ -32,7 +32,7 @@ Backbone.Model.prototype._colorHash = function(str) {
         // so no need to optimize as: ((hash << 5) + hash) + c
         hash = hash * 33 + c;
         
-        hash %= 17;  // This is the minimum number of colors
+        hash %= this._nrOfColors;  // This is the minimum number of colors
     }
     return hash;
 }
@@ -47,6 +47,7 @@ Backbone.Model.prototype._colors = [
     // 17 colors
     '#d9a3a3', '#e55039', '#ffaa00', '#bf9f60', '#d6e600', '#006600', '#005900', '#3df255', '#99cca0', '#2daab3', '#0088ff', '#002280', '#46598c', '#d0bfff', '#9100d9', '#cc3399', '#661a24'
 ];
+Backbone.Model.prototype._nrOfColors = Backbone.Model.prototype._colors.length;
 
 /**
  * Prefs model
