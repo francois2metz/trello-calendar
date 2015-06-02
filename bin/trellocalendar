@@ -2,7 +2,14 @@
 
 var argv = require('optimist').default('p', 4000).argv;
 
-var config = JSON.parse(require('fs').readFileSync(__dirname +'/../config.json', 'utf8'));
+// Grab a specific configuration file, according to the environment specified through NODE_ENV environment variable.
+// E.g. to use config.devel.json run (on Windows) 'set NODE_ENV=devel & node bin\trellocalendar'
+var env = process.env.NODE_ENV.trim() || '';
+
+var configFilename = 'config' + (env != '' ? '.' + env : '') + '.json';
+
+var configFilepath = __dirname + '/../' + configFilename;
+var config = JSON.parse(require('fs').readFileSync(configFilepath, 'utf8'));
 
 var app = require('trello_baseapp/lib/app')(config);
 var calendar = require('../lib/app')(config);
